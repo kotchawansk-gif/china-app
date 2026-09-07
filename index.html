@@ -415,7 +415,13 @@ let parcels=[],costs=[],editPid=null,editCid=null,pFilter='all';
 let calY=TODAY.getFullYear(),calM=TODAY.getMonth(),selDay=null,curPage='dash',curIdx=0;
 
 const nv=v=>parseFloat(v)||0;
-const fmt=v=>'฿'+Math.round(Number(v)).toLocaleString('th-TH');
+const fmt=v=>{
+  const n=Number(v);
+  if(n===0)return'฿0';
+  if(Math.abs(n)<1)return'฿'+n.toFixed(4).replace(/\.?0+$/,'');
+  if(Math.abs(n)<100)return'฿'+n.toFixed(2).replace(/\.?0+$/,'');
+  return'฿'+Math.round(n).toLocaleString('th-TH');
+};
 const fmtN=v=>Math.round(Number(v)).toLocaleString('th-TH');
 const MTH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const MTHF=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
