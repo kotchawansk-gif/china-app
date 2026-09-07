@@ -287,6 +287,7 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
 
 <!-- Parcels -->
 <div class="page right" id="page-parcel">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:6px"><button onclick="exportCSV()" style="font-size:11px;font-weight:600;color:var(--br);border:none;background:none;cursor:pointer;font-family:inherit">⬇️ Export CSV</button></div>
   <div class="filters">
     <button class="fb on" onclick="setPF('all',this)">ทั้งหมด</button>
     <button class="fb" onclick="setPF('ออกโกดังจีน รอเข้าไทย',this)">🚛 กำลังส่ง</button>
@@ -303,15 +304,6 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
   <div id="cost-list"></div>
 </div>
 
-<!-- Summary -->
-<div class="page right" id="page-sum">
-  <div class="stat-row" style="margin-bottom:6px">
-    <div class="stat stat-am"><span class="stat-icon">💰</span><div class="stat-lbl">ต้นทุนรวม</div><div class="stat-val" id="sh-cost" style="font-size:16px">-</div></div>
-    <div class="stat stat-bl"><span class="stat-icon">🚢</span><div class="stat-lbl">ค่าส่งรวม</div><div class="stat-val" id="sh-ship" style="font-size:16px">-</div></div>
-  </div>
-  <div class="sec-hd"><div class="sec-lbl">📦 รายการพัสดุทั้งหมด</div><button class="see-all" onclick="exportCSV()">⬇️ Export</button></div>
-  <div id="sum-list"></div>
-</div>
 
 </div>
 
@@ -324,7 +316,6 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
     <button class="nb" id="nb-1" onclick="navTo('cal',1)"><i class="ti ti-calendar"></i><div class="nb-bar"></div>ปฏิทิน</button>
     <button class="nb" id="nb-2" onclick="navTo('parcel',2)"><i class="ti ti-package"></i><div class="nb-bar"></div>พัสดุ</button>
     <button class="nb" id="nb-3" onclick="navTo('cost',3)"><i class="ti ti-receipt"></i><div class="nb-bar"></div>ต้นทุน</button>
-    <button class="nb" id="nb-4" onclick="navTo('sum',4)"><i class="ti ti-chart-bar"></i><div class="nb-bar"></div>สรุป</button>
   </div>
 </div>
 
