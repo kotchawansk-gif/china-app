@@ -255,6 +255,9 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
     <button onclick="exportCSV()" style="font-size:11px;font-weight:600;color:var(--br);border:none;background:none;cursor:pointer;font-family:inherit">⬇️ Export CSV</button>
   </div>
   <input type="file" id="ae-import" accept=".xlsx,.xls" style="display:none" onchange="importAE(this)">
+  <div style="position:relative;margin-bottom:8px">
+    <input id="search-parcel" placeholder="🔍 ค้นหาเลขพัสดุ, สินค้า, ลูกค้า..." oninput="renderParcels()" style="width:100%;padding:9px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-family:inherit">
+  </div>
   <div class="filters">
     <button class="fb on" onclick="setPF('all',this)">ทั้งหมด</button>
     <button class="fb" onclick="setPF('ออกโกดังจีน รอเข้าไทย',this)">🚛 กำลังส่ง</button>
@@ -348,6 +351,15 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
       <div class="skip-link" onclick="saveParcelOnly()">⏭️ <span>บันทึกแค่พัสดุ ไม่กรอกต้นทุน</span></div>
       <button class="btn-ghost" onclick="goStep(1)">← กลับแก้ไขพัสดุ</button>
     </div>
+  </div>
+</div>
+
+<!-- Sheet รายละเอียดพัสดุ -->
+<div class="sheet-wrap" id="sheet-detail">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hd"><span id="sd-title">รายละเอียดพัสดุ</span><button class="close-x" onclick="closeDetail()">✕</button></div>
+    <div id="sd-content"></div>
   </div>
 </div>
 
@@ -613,7 +625,9 @@ function initSwipe(card){
 }
 
 function renderParcels(){
-  const list=pFilter==='all'?parcels:parcels.filter(p=>p.status===pFilter);
+  const q=(document.getElementById('search-parcel')?.value||'').toLowerCase().trim();
+  let list=pFilter==='all'?parcels:parcels.filter(p=>p.status===pFilter);
+  if(q)list=list.filter(p=>[p.tracking,p.product,p.customer,p.lot,p.invoice].filter(Boolean).some(v=>v.toLowerCase().includes(q)));
   const el=document.getElementById('parcel-list');
   if(!list.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">ยังไม่มีพัสดุ</div><div class="empty-sub">กดปุ่ม + เพื่อเพิ่มรายการแรก</div></div>`;return;}
   el.innerHTML=list.map(p=>{
@@ -700,13 +714,94 @@ function renderCostPage(){
 }
 
 function goToParcel(tracking){
-  navTo('parcel',2);
-  setPF('all',document.querySelector('.filters .fb'));
-  setTimeout(()=>{
-    const cards=document.querySelectorAll('.p-tracking');
-    for(const c of cards){if(c.textContent===tracking){const card=c.closest('.p-card');if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.style.transition='box-shadow 0.3s';card.style.boxShadow='0 0 0 2px var(--br)';setTimeout(()=>{card.style.boxShadow='';},2000);}break;}}
-  },400);
+  // ถ้าอยู่หน้าพัสดุอยู่แล้ว scroll ไปเลย ไม่ต้องเปิด popup
+  if(curPage==='parcel'){
+    setPF('all',document.querySelector('.filters .fb'));
+    setTimeout(()=>{
+      const cards=document.querySelectorAll('.p-tracking');
+      for(const c of cards){if(c.textContent===tracking){const card=c.closest('.p-card');if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.style.boxShadow='0 0 0 2px var(--br)';setTimeout(()=>{card.style.boxShadow='';},2000);}break;}}
+    },200);
+    return;
+  }
+  // หน้าอื่น เปิด popup รายละเอียด
+  openDetail(tracking);
 }
+
+function openDetail(tracking){
+  const p=parcels.find(x=>x.tracking===tracking);
+  if(!p)return;
+  const c=costs.find(x=>x.tracking===tracking);
+  const eta=getETA(p);
+  const grand=c?nv(c.grand_total)||(nv(c.cost_total)+nv(c.ship_total)):0;
+  const perPc=c?(nv(c.cost_per_piece)||(c.qty>0?grand/c.qty:0)):0;
+
+  document.getElementById('sd-title').textContent=p.tracking;
+
+  let html='';
+  // Status pill
+  html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+    <div class="pill ${SPILL[p.status]||'p-wait'}" style="font-size:11px">${SEMI[p.status]||'📦'} ${p.status}</div>
+    <div class="pill p-wh">${p.method==='เรือ'?'🚢 เรือ':'🚛 รถ'}</div>
+  </div>`;
+
+  // ETA
+  if(eta){
+    if(eta.actual)html+=`<div class="eta-bar eta-bar-ok" style="margin-bottom:10px">✅ ถึงไทยแล้ว ${dStr(p.date_th)}</div>`;
+    else html+=`<div class="eta-bar eta-bar-ship" style="margin-bottom:10px">🕐 คาด ${dStr(eta.min)} – ${dStr(eta.max)}</div>`;
+  }
+
+  // ข้อมูลพัสดุ
+  html+=`<div style="background:var(--bg);border-radius:12px;padding:12px;margin-bottom:10px">`;
+  html+=`<div style="font-size:11px;font-weight:700;color:var(--br);margin-bottom:8px">📦 ข้อมูลพัสดุ</div>`;
+  const rows=[
+    ['🛍️ สินค้า', p.product],
+    ['👤 ลูกค้า', p.customer],
+    ['🔢 จำนวน', p.qty?p.qty+' ชิ้น':null],
+    ['🏭 เลขใบงาน', p.invoice],
+    ['🏷️ ล็อต', p.lot],
+    ['📅 วันที่สั่ง', p.order_date?dStr(p.order_date):null],
+    ['📤 ออกโกดังจีน', p.date_out?dStr(p.date_out):null],
+    ['✅ ถึงไทย', p.date_th?dStr(p.date_th):null],
+    ['⚖️ น้ำหนัก', p.kg?p.kg+' กก.':null],
+    ['📝 หมายเหตุ', p.note],
+  ];
+  rows.forEach(([lbl,val])=>{
+    if(!val)return;
+    html+=`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)"><span style="font-size:11px;color:var(--text3);font-weight:600">${lbl}</span><span style="font-size:11px;font-weight:700;color:var(--text)">${val}</span></div>`;
+  });
+  html+=`</div>`;
+
+  // ต้นทุน
+  if(c){
+    html+=`<div style="background:var(--bg);border-radius:12px;padding:12px;margin-bottom:10px">`;
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--br);margin-bottom:8px">💰 ต้นทุน</div>`;
+    const crows=[
+      ['💴 ราคาหยวน', c.yuan?c.yuan+'¥ × '+c.rate+' = '+fmt(c.cost_total):null],
+      ['🇨🇳 จีน→ไทย', c.ship_ae?fmt(c.ship_ae):null],
+      ['🚗 ไทย→บริษัท', c.ship_fac?fmt(c.ship_fac):null],
+      ['📦 รวมทั้งหมด', grand?fmt(grand):null],
+      ['💡 ต้นทุน/ชิ้น', perPc?fmt(perPc):null],
+    ];
+    crows.forEach(([lbl,val])=>{
+      if(!val)return;
+      html+=`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)"><span style="font-size:11px;color:var(--text3);font-weight:600">${lbl}</span><span style="font-size:11px;font-weight:700;color:var(--text)">${val}</span></div>`;
+    });
+    html+=`</div>`;
+  } else {
+    html+=`<div style="background:var(--am-l);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:11px;font-weight:600;color:var(--am)">💰 ยังไม่กรอกต้นทุน</div>`;
+  }
+
+  // ปุ่มแก้ไข
+  html+=`<div style="display:flex;gap:8px;margin-top:4px">
+    <button onclick="closeDetail();editParcel(${p.id})" style="flex:1;padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px"><i class="ti ti-edit"></i> แก้ไขพัสดุ</button>
+    <button onclick="closeDetail();openCostForm(${p.id})" style="flex:1;padding:10px;border-radius:12px;border:1.5px solid var(--br);background:var(--br-l);color:var(--br);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px"><i class="ti ti-receipt"></i> ${c?'แก้ต้นทุน':'กรอกต้นทุน'}</button>
+  </div>`;
+
+  document.getElementById('sd-content').innerHTML=html;
+  document.getElementById('sheet-detail').classList.add('on');
+}
+
+function closeDetail(){document.getElementById('sheet-detail').classList.remove('on');}
 
 function getNotifs(){
   const notifs=[];
@@ -824,6 +919,7 @@ function exportCSV(){
 
 document.getElementById('sheet-main').addEventListener('click',e=>{if(e.target===document.getElementById('sheet-main'))closeSheet();});
 document.getElementById('sheet-notif').addEventListener('click',e=>{if(e.target===document.getElementById('sheet-notif'))closeNotif();});
+document.getElementById('sheet-detail').addEventListener('click',e=>{if(e.target===document.getElementById('sheet-detail'))closeDetail();});
 
 loadAll();
 setInterval(loadAll,30000);
