@@ -189,11 +189,37 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
 .empty-icon{font-size:40px;margin-bottom:10px}
 .empty-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px}
 .empty-sub{font-size:12px;color:var(--text3)}
+
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-<div class="app">
+<!-- Login Screen -->
+<div id="login-screen" style="position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px">
+  <div style="width:64px;height:64px;border-radius:20px;overflow:hidden;margin-bottom:16px;box-shadow:0 6px 18px rgba(107,79,58,0.25)">
+    <svg viewBox="0 0 30 20" width="64" height="64"><rect width="30" height="20" fill="#DE2910"/><polygon points="5,2 6.2,5.8 2.2,3.2 7.8,3.2 3.8,5.8" fill="#FFDE00"/><polygon points="10,1 10.6,2.8 9,1.6 11,1.6 9.4,2.8" fill="#FFDE00"/><polygon points="12,3 12.6,4.8 11,3.6 13,3.6 11.4,4.8" fill="#FFDE00"/><polygon points="12,6 12.6,7.8 11,6.6 13,6.6 11.4,7.8" fill="#FFDE00"/><polygon points="10,8 10.6,9.8 9,8.6 11,8.6 9.4,9.8" fill="#FFDE00"/></svg>
+  </div>
+  <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px">ติดตามการจัดซื้อ</div>
+  <div style="font-size:12px;color:var(--text3);margin-bottom:28px">กรุณาเข้าสู่ระบบ</div>
+  <div style="width:100%;max-width:320px">
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:5px">👤 Username</label>
+      <input id="login-user" placeholder="username" style="width:100%;padding:12px 14px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);font-size:15px;font-family:inherit" autocomplete="username" autocapitalize="none">
+    </div>
+    <div style="margin-bottom:8px">
+      <label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:5px">🔒 Password</label>
+      <div style="position:relative">
+        <input id="login-pass" type="password" placeholder="password" style="width:100%;padding:12px 14px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);font-size:15px;font-family:inherit" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button onclick="togglePass()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px" id="pass-eye">👁</button>
+      </div>
+    </div>
+    <div id="login-err" style="font-size:12px;color:var(--rd);font-weight:600;margin-bottom:12px;height:16px;text-align:center"></div>
+    <button onclick="doLogin()" style="width:100%;padding:14px;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,#6B4F3A,#8B5E3C);box-shadow:0 4px 14px rgba(107,79,58,0.3)">เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<div class="app" id="main-app" style="display:none">
 <div class="top-bar">
   <div style="display:flex;align-items:center;gap:8px">
     <div class="app-logo">
@@ -205,7 +231,11 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
       <div class="sync-status sync-loading" id="sync-st"><span class="sync-dot"></span><span id="sync-txt">กำลังเชื่อมต่อ...</span></div>
     </div>
   </div>
-  <button class="bell-btn" onclick="openNotif()">🔔<div class="notif-dot" id="notif-dot"></div></button>
+  <div style="display:flex;align-items:center;gap:6px">
+    <span id="user-label" style="font-size:10px;font-weight:700;color:var(--br);background:var(--br-l);padding:3px 8px;border-radius:99px;cursor:pointer" onclick="showUserMenu()"></span>
+    <button onclick="loadAll()" id="refresh-btn" style="width:30px;height:30px;border-radius:50%;background:var(--br-l);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center" title="รีเฟรช">🔄</button>
+    <button class="bell-btn" onclick="openNotif()">🔔<div class="notif-dot" id="notif-dot"></div></button>
+  </div>
 </div>
 
 <div class="pages">
@@ -269,6 +299,9 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
 
 <!-- Cost -->
 <div class="page right" id="page-cost">
+  <div style="position:relative;margin-bottom:8px">
+    <input id="search-cost" placeholder="🔍 ค้นหาเลขพัสดุ, สินค้า, ลูกค้า..." oninput="renderCostPage()" style="width:100%;padding:9px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-family:inherit">
+  </div>
   <div id="cost-list"></div>
 </div>
 </div>
@@ -363,6 +396,15 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
   </div>
 </div>
 
+<!-- Sheet User Menu -->
+<div class="sheet-wrap" id="sheet-user">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hd"><span id="um-title">บัญชีของฉัน</span><button class="close-x" onclick="document.getElementById('sheet-user').classList.remove('on')">✕</button></div>
+    <div id="um-content"></div>
+  </div>
+</div>
+
 <!-- Sheet แจ้งเตือน -->
 <div class="sheet-wrap" id="sheet-notif">
   <div class="sheet">
@@ -370,6 +412,7 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
     <div class="sheet-hd"><span>🔔 การแจ้งเตือน</span><button class="close-x" onclick="closeNotif()">✕</button></div>
     <div id="notif-list"></div>
   </div>
+</div>
 </div>
 </div>
 
@@ -654,12 +697,14 @@ function renderParcels(){
     const c=costs.find(x=>x.tracking===p.tracking);
     return`<div class="card-wrap"><div class="swipe-acts"><button class="sw-edit" onclick="editParcel(${p.id})"><i class="ti ti-edit" style="font-size:16px"></i>แก้ไข</button><button class="sw-del" onclick="delParcel(${p.id})"><i class="ti ti-trash" style="font-size:16px"></i>ลบ</button></div>
     <div class="p-card" id="card-${p.id}">
-      <div class="p-top"><div><div class="p-tracking">${p.tracking}</div>${p.product?`<div class="p-product">🛍️ ${p.product}</div>`:''}<div class="p-inv">${p.order_date?'📅 '+dStr(p.order_date)+' · ':''}${p.invoice?'🏭 '+p.invoice:''}${p.lot?' · '+p.lot:''}</div></div><div class="pill ${SPILL[p.status]||'p-wait'}">${SEMI[p.status]||'📦'} ${p.status}</div></div>
+      <div class="p-top"><div><div class="p-tracking" oncontextmenu="copyTracking(event,'${p.tracking}')" title="กดค้างเพื่อ copy">${p.tracking}</div>${p.product?`<div class="p-product">🛍️ ${p.product}</div>`:''}<div class="p-inv">${p.order_date?'📅 '+dStr(p.order_date)+' · ':''}${p.invoice?'🏭 '+p.invoice:''}${p.lot?' · '+p.lot:''}</div></div><div class="pill ${SPILL[p.status]||'p-wait'}">${SEMI[p.status]||'📦'} ${p.status}</div></div>
       <div class="p-tags">${p.customer?`<div class="tag">👤 ${p.customer}</div>`:''}<div class="tag">${p.method==='เรือ'?'🚢 เรือ':'🚛 รถ'}</div>${p.qty?`<div class="tag">🔢 ${p.qty} ชิ้น</div>`:''}</div>
       ${etaHtml}
       ${p.kg?`<div style="font-size:10px;color:var(--text3);margin-bottom:4px">⚖️ ${p.kg} กก.${p.note?' · 📝 '+p.note:''}</div>`:p.note?`<div style="font-size:10px;color:var(--text3);margin-bottom:4px">📝 ${p.note}</div>`:''}
       ${c?`<div style="font-size:10px;color:var(--gr);font-weight:600;margin-bottom:4px">✅ มีต้นทุนแล้ว · 💡 ${fmt(nv(c.cost_per_piece)||(c.qty>0?(nv(c.grand_total)||(nv(c.cost_total)+nv(c.ship_total)))/c.qty:0))}/ชิ้น</div>`:`<div style="font-size:10px;color:var(--am);font-weight:600;margin-bottom:4px">💰 ยังไม่กรอกต้นทุน</div>`}
-      <div class="act-row"><button class="act-btn" onclick="editParcel(${p.id})"><i class="ti ti-edit"></i> แก้ไข</button><button class="act-btn act-del" onclick="delParcel(${p.id})"><i class="ti ti-trash"></i> ลบ</button></div>
+      ${currentUser?.role==='stock'?
+        `<button onclick="stockReceive(${p.id})" style="width:100%;padding:8px;border-radius:10px;border:1.5px solid var(--gr);background:var(--gr-l);color:var(--gr);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:6px;display:${p.status==='รับของแล้ว'?'none':'flex'};align-items:center;justify-content:center;gap:5px"><i class="ti ti-check"></i> กรอกวันรับของ</button>`
+        :`<div class="act-row"><button class="act-btn" onclick="editParcel(${p.id})"><i class="ti ti-edit"></i> แก้ไข</button><button class="act-btn act-del" onclick="delParcel(${p.id})"><i class="ti ti-trash"></i> ลบ</button></div>`}
     </div></div>`;
   }).join('');
   pageList.forEach(p=>{const c=document.getElementById('card-'+p.id);if(c)initSwipe(c);});
@@ -722,8 +767,10 @@ function renderCostPage(){
   const el=document.getElementById('cost-list');
   if(!el)return;
   if(!parcels.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-title">ยังไม่มีพัสดุ</div><div class="empty-sub">เพิ่มพัสดุในแท็บ "พัสดุ" ก่อน</div></div>`;return;}
-  const noCost=parcels.filter(p=>!costs.find(c=>c.tracking===p.tracking));
-  const hasCostList=parcels.filter(p=>costs.find(c=>c.tracking===p.tracking));
+  const q=(document.getElementById('search-cost')?.value||'').toLowerCase().trim();
+  let allP=q?parcels.filter(p=>[p.tracking,p.product,p.customer,p.lot].filter(Boolean).some(v=>v.toLowerCase().includes(q))):parcels;
+  const noCost=allP.filter(p=>!costs.find(c=>c.tracking===p.tracking));
+  const hasCostList=allP.filter(p=>costs.find(c=>c.tracking===p.tracking));
   let html='';
   if(noCost.length){html+=`<div style="background:var(--am-l);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;font-weight:700;color:var(--am)">💰 ยังไม่กรอกต้นทุน ${noCost.length} รายการ</div>`;}
   else{html+=`<div style="background:var(--gr-l);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;font-weight:700;color:var(--gr)">✅ กรอกต้นทุนครบทุกรายการแล้ว</div>`;}
@@ -821,6 +868,78 @@ function openDetail(tracking){
 }
 
 function closeDetail(){document.getElementById('sheet-detail').classList.remove('on');}
+
+function showUserMenu(){
+  const roleLabel={admin:'👑 Admin',manager:'📊 Manager',จัดซื้อ:'🛒 จัดซื้อ',stock:'📦 Stock'};
+  document.getElementById('um-content').innerHTML=`
+    <div style="background:var(--br-l);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
+      <div style="font-size:32px;margin-bottom:6px">👤</div>
+      <div style="font-size:16px;font-weight:800;color:var(--text)">${currentUser?.username}</div>
+      <div style="font-size:12px;color:var(--br);font-weight:600;margin-top:2px">${roleLabel[currentUser?.role]||currentUser?.role}</div>
+    </div>
+    <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">🔒 เปลี่ยน Password</div>
+    <div class="fl"><label class="flbl">Password ใหม่</label><input type="password" id="new-pass1" placeholder="ใส่ password ใหม่"></div>
+    <div class="fl"><label class="flbl">ยืนยัน Password</label><input type="password" id="new-pass2" placeholder="ยืนยันอีกครั้ง"></div>
+    <div id="chpass-err" style="font-size:12px;color:var(--rd);font-weight:600;height:16px;margin-bottom:8px"></div>
+    <button onclick="changePassword()" style="width:100%;padding:12px;border:none;border-radius:12px;background:var(--br);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">บันทึก Password ใหม่</button>
+    <button onclick="doLogout()" style="width:100%;padding:12px;border:1.5px solid var(--rd);border-radius:12px;background:var(--rd-l);color:var(--rd);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px">🚪 ออกจากระบบ</button>
+    ${currentUser?.role==='admin'?`<div style="margin-top:20px;font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">👥 จัดการ User</div><div id="user-list">กำลังโหลด...</div>`:''}`+
+    (currentUser?.role==='admin'?'':'')+`
+  `;
+  document.getElementById('sheet-user').classList.add('on');
+  if(currentUser?.role==='admin')loadUserList();
+}
+
+async function loadUserList(){
+  try{
+    const r=await fetch(`${SURL}/rest/v1/users?select=id,username,role&order=id`,{headers:H});
+    const users=await r.json();
+    const roleLabel={admin:'👑 Admin',manager:'📊 Manager',จัดซื้อ:'🛒 จัดซื้อ',stock:'📦 Stock'};
+    document.getElementById('user-list').innerHTML=users.map(u=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div><div style="font-size:13px;font-weight:700;color:var(--text)">${u.username}</div><div style="font-size:11px;color:var(--text3)">${roleLabel[u.role]||u.role}</div></div>
+        <button onclick="resetUserPass(${u.id},'${u.username}')" style="padding:5px 10px;border-radius:99px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer">Reset Pass</button>
+      </div>`).join('');
+  }catch(e){document.getElementById('user-list').textContent='โหลดไม่ได้';}
+}
+
+async function resetUserPass(id,username){
+  const newp=prompt(`Reset password ของ "${username}" เป็นอะไร?`);
+  if(!newp)return;
+  try{
+    await fetch(`${SURL}/rest/v1/users?id=eq.${id}`,{method:'PATCH',headers:H,body:JSON.stringify({password:newp})});
+    toast('✅ Reset password แล้ว');
+  }catch(e){toast('❌ ไม่สำเร็จ');}
+}
+
+async function changePassword(){
+  const p1=document.getElementById('new-pass1').value;
+  const p2=document.getElementById('new-pass2').value;
+  const err=document.getElementById('chpass-err');
+  if(!p1){err.textContent='กรุณาใส่ password ใหม่';return;}
+  if(p1!==p2){err.textContent='Password ไม่ตรงกัน';return;}
+  if(p1.length<4){err.textContent='Password ต้องมีอย่างน้อย 4 ตัว';return;}
+  try{
+    await fetch(`${SURL}/rest/v1/users?id=eq.${currentUser.id}`,{method:'PATCH',headers:H,body:JSON.stringify({password:p1})});
+    err.textContent='';
+    toast('✅ เปลี่ยน password แล้ว');
+    document.getElementById('sheet-user').classList.remove('on');
+  }catch(e){err.textContent='บันทึกไม่สำเร็จ';}
+}
+
+function copyTracking(e,tracking){
+  e.preventDefault();
+  navigator.clipboard.writeText(tracking).then(()=>toast('📋 copy แล้ว: '+tracking)).catch(()=>{});
+}
+
+// Animate refresh button
+const _origLoad=loadAll;
+async function loadAll(){
+  const btn=document.getElementById('refresh-btn');
+  if(btn)btn.style.animation='spin 1s linear infinite';
+  await _origLoad();
+  if(btn)btn.style.animation='';
+}
 
 function getNotifs(){
   const notifs=[];
@@ -928,6 +1047,16 @@ function importAE(input){
   reader.readAsArrayBuffer(file);
 }
 
+async function stockReceive(pid){
+  const p=parcels.find(x=>x.id===pid);if(!p)return;
+  const dateVal=prompt(`กรอกวันที่รับของ "${p.tracking}" (yyyy-mm-dd):`,new Date().toISOString().slice(0,10));
+  if(!dateVal)return;
+  try{
+    await dbUpd('parcels',pid,{date_th:dateVal,status:'รับของแล้ว'});
+    await loadAll();toast('✅ บันทึกวันรับของแล้ว');
+  }catch(e){toast('❌ บันทึกไม่สำเร็จ');}
+}
+
 function exportCSV(){
   const rows=parcels.map(p=>{const c=costs.find(x=>x.tracking===p.tracking);const eta=getETA(p);const etaStr=eta?(eta.actual?dStr(p.date_th):`${dStr(eta.min)}–${dStr(eta.max)}`):'';const grand=c?nv(c.grand_total)||(nv(c.cost_total)+nv(c.ship_total)):0;const per=c?nv(c.cost_per_piece)||(c.qty>0?grand/c.qty:0):0;return[p.tracking,p.invoice||'',p.customer||'',p.product||'',p.qty||'',p.lot||'',p.status,p.method,p.date_out||'',p.date_th||'',etaStr,c?c.yuan||'':'',c?c.rate||'':'',c?c.cost_total:'',c?c.ship_ae:'',c?c.ship_fac:'',c?c.ship_total:'',grand||'',per||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');});
   const h='เลขพัสดุ,เลขใบงาน,ลูกค้า,สินค้า,จำนวน,ล็อต,สถานะ,ขนส่ง,วันออกโกดัง,วันถึงไทย,ETA,หยวน,เรท,ต้นทุน฿,ส่งจีน→ไทย,ส่งไทย→บริษัท,ค่าส่งรวม,รวมทั้งหมด,ต้นทุน/ชิ้น';
@@ -939,8 +1068,83 @@ function exportCSV(){
 document.getElementById('sheet-main').addEventListener('click',e=>{if(e.target===document.getElementById('sheet-main'))closeSheet();});
 document.getElementById('sheet-notif').addEventListener('click',e=>{if(e.target===document.getElementById('sheet-notif'))closeNotif();});
 document.getElementById('sheet-detail').addEventListener('click',e=>{if(e.target===document.getElementById('sheet-detail'))closeDetail();});
+document.getElementById('sheet-user').addEventListener('click',e=>{if(e.target===document.getElementById('sheet-user'))document.getElementById('sheet-user').classList.remove('on');});
 
-loadAll();
+// Login Logic
+const SESSION_KEY='cn_session';const SESSION_DAYS=30;
+let currentUser=null;
+
+function togglePass(){
+  const el=document.getElementById('login-pass');
+  el.type=el.type==='password'?'text':'password';
+}
+
+async function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value;
+  const errEl=document.getElementById('login-err');
+  if(!u||!p){errEl.textContent='กรุณาใส่ username และ password';return;}
+  errEl.textContent='';
+  try{
+    const r=await fetch(`${SURL}/rest/v1/users?username=eq.${encodeURIComponent(u)}&password=eq.${encodeURIComponent(p)}`,{headers:H});
+    const data=await r.json();
+    if(!data.length){errEl.textContent='Username หรือ Password ไม่ถูกต้อง';return;}
+    const user=data[0];
+    currentUser={id:user.id,username:user.username,role:user.role};
+    localStorage.setItem(SESSION_KEY,JSON.stringify({...currentUser,ts:Date.now()}));
+    unlockApp();
+  }catch(e){errEl.textContent='เชื่อมต่อไม่ได้ ลองใหม่';}
+}
+
+function checkSession(){
+  const s=localStorage.getItem(SESSION_KEY);
+  if(!s)return false;
+  const d=JSON.parse(s);
+  if(Date.now()-d.ts>SESSION_DAYS*86400000){localStorage.removeItem(SESSION_KEY);return false;}
+  currentUser={id:d.id,username:d.username,role:d.role};
+  return true;
+}
+
+function unlockApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('main-app').style.display='flex';
+  // แสดงชื่อ user ใน top bar
+  document.getElementById('top-date').textContent=`${DOW[dd.getDay()]} ${dd.getDate()} ${MTH[dd.getMonth()]} ${dd.getFullYear()+543}`;
+  updateTopUser();
+  applyRole();
+  loadAll();
+}
+
+function updateTopUser(){
+  if(!currentUser)return;
+  const roleLabel={admin:'👑 Admin',manager:'📊 Manager',จัดซื้อ:'🛒 จัดซื้อ',stock:'📦 Stock'};
+  const el=document.getElementById('user-label');
+  if(el)el.textContent=roleLabel[currentUser.role]||currentUser.role;
+}
+
+function applyRole(){
+  const role=currentUser?.role;
+  // stock: ซ่อนปุ่ม + และซ่อนหน้าต้นทุน
+  const fab=document.getElementById('fab');
+  const nbCost=document.getElementById('nb-3');
+  if(role==='stock'){
+    if(fab)fab.style.display='none';
+    if(nbCost)nbCost.style.display='none';
+  }
+}
+
+function doLogout(){
+  localStorage.removeItem(SESSION_KEY);
+  currentUser=null;
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+}
+
+// Check session on load
+if(checkSession()){unlockApp();}
+else{document.getElementById('login-screen').style.display='flex';}
 setInterval(loadAll,30000);
 </script>
 </body>
