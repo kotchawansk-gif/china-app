@@ -873,18 +873,19 @@ function openDetail(tracking){
 function closeDetail(){document.getElementById('sheet-detail').classList.remove('on');}
 
 function showUserMenu(){
-  const roleLabel={admin:'👑 Admin',manager:'📊 Manager',จัดซื้อ:'🛒 จัดซื้อ',stock:'📦 Stock'};
+  const roleLabel={admin:'👑 Admin',manager:'📊 Manager',purchase:'🛒 Purchase',stock:'📦 Stock'};
   document.getElementById('um-content').innerHTML=`
     <div style="background:var(--br-l);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
       <div style="font-size:32px;margin-bottom:6px">👤</div>
       <div style="font-size:16px;font-weight:800;color:var(--text)">${currentUser?.username}</div>
       <div style="font-size:12px;color:var(--br);font-weight:600;margin-top:2px">${roleLabel[currentUser?.role]||currentUser?.role}</div>
     </div>
+    ${currentUser?.role==='admin'?`
     <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">🔒 เปลี่ยน Password</div>
     <div class="fl"><label class="flbl">Password ใหม่</label><input type="password" id="new-pass1" placeholder="ใส่ password ใหม่"></div>
     <div class="fl"><label class="flbl">ยืนยัน Password</label><input type="password" id="new-pass2" placeholder="ยืนยันอีกครั้ง"></div>
     <div id="chpass-err" style="font-size:12px;color:var(--rd);font-weight:600;height:16px;margin-bottom:8px"></div>
-    <button onclick="changePassword()" style="width:100%;padding:12px;border:none;border-radius:12px;background:var(--br);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">บันทึก Password ใหม่</button>
+    <button onclick="changePassword()" style="width:100%;padding:12px;border:none;border-radius:12px;background:var(--br);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">บันทึก Password ใหม่</button>`:''}
     <button onclick="doLogout()" style="width:100%;padding:12px;border:1.5px solid var(--rd);border-radius:12px;background:var(--rd-l);color:var(--rd);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px">🚪 ออกจากระบบ</button>
     ${currentUser?.role==='admin'?`<div style="margin-top:20px;font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">👥 จัดการ User</div><div id="user-list">กำลังโหลด...</div>`:''}`+
     (currentUser?.role==='admin'?'':'')+`
@@ -897,7 +898,7 @@ async function loadUserList(){
   try{
     const r=await fetch(`${SURL}/rest/v1/users?select=id,username,role,password&order=id`,{headers:H});
     const users=await r.json();
-    const roleLabel={admin:'👑 Admin',manager:'📊 Manager',จัดซื้อ:'🛒 จัดซื้อ',stock:'📦 Stock'};
+    const roleLabel={admin:'👑 Admin',manager:'📊 Manager',purchase:'🛒 Purchase',stock:'📦 Stock'};
     document.getElementById('user-list').innerHTML=users.map(u=>`
       <div style="padding:10px 0;border-bottom:1px solid var(--border)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
@@ -1131,7 +1132,7 @@ function unlockApp(){
 
 function updateTopUser(){
   if(!currentUser)return;
-  const roleLabel={admin:'👑 Admin',manager:'📊 Manager',จัดซื้อ:'🛒 จัดซื้อ',stock:'📦 Stock'};
+  const roleLabel={admin:'👑 Admin',manager:'📊 Manager',purchase:'🛒 Purchase',stock:'📦 Stock'};
   const el=document.getElementById('user-label');
   if(el)el.textContent=roleLabel[currentUser.role]||currentUser.role;
 }
