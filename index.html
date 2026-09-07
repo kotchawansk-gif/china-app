@@ -190,6 +190,7 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
 .empty-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px}
 .empty-sub{font-size:12px;color:var(--text3)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -249,7 +250,11 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
 
 <!-- Parcels -->
 <div class="page right" id="page-parcel">
-  <div style="display:flex;justify-content:flex-end;margin-bottom:4px"><button onclick="exportCSV()" style="font-size:11px;font-weight:600;color:var(--br);border:none;background:none;cursor:pointer;font-family:inherit">⬇️ Export CSV</button></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+    <button onclick="document.getElementById('ae-import').click()" style="font-size:11px;font-weight:600;color:var(--bl);border:1px solid var(--bl-l);background:var(--bl-l);cursor:pointer;font-family:inherit;padding:5px 10px;border-radius:99px">📥 นำเข้า AreeExpress</button>
+    <button onclick="exportCSV()" style="font-size:11px;font-weight:600;color:var(--br);border:none;background:none;cursor:pointer;font-family:inherit">⬇️ Export CSV</button>
+  </div>
+  <input type="file" id="ae-import" accept=".xlsx,.xls" style="display:none" onchange="importAE(this)">
   <div class="filters">
     <button class="fb on" onclick="setPF('all',this)">ทั้งหมด</button>
     <button class="fb" onclick="setPF('ออกโกดังจีน รอเข้าไทย',this)">🚛 กำลังส่ง</button>
@@ -737,6 +742,76 @@ function closeNotif(){document.getElementById('sheet-notif').classList.remove('o
 function fillDL(){
   const cu=[...new Set([...parcels.map(p=>p.customer),...costs.map(c=>c.customer)].filter(Boolean))];
   const el=document.getElementById('sp-custs');if(el)el.innerHTML=cu.map(c=>`<option value="${c}">`).join('');
+}
+
+function importAE(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      // หาชีทพัสดุปีปัจจุบัน
+      const year=new Date().getFullYear();
+      const sheetName=wb.SheetNames.find(s=>s.includes(String(year)))||wb.SheetNames.find(s=>s.includes('พัสดุ'));
+      if(!sheetName){toast('❌ ไม่เจอชีทพัสดุ');return;}
+      const ws=wb.Sheets[sheetName];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1});
+      // หา header row
+      let hRow=0;
+      for(let i=0;i<rows.length;i++){if(rows[i].includes('เลขพัสดุ')){hRow=i;break;}}
+      const headers=rows[hRow];
+      const iTrack=headers.indexOf('เลขพัสดุ');
+      const iStatus=headers.indexOf('สถานะ');
+      const iMethod=headers.indexOf('ขนส่ง');
+      const iLot=headers.indexOf('ล็อต-ลำดับ');
+      const iDateIn=headers.indexOf('เข้าโกดังจีน');
+      const iDateOut=headers.indexOf('ออกโกดังจีน');
+      const iDateTh=headers.indexOf('ถึงไทย');
+      const iKg=headers.indexOf('น้ำหนัก (กก.)');
+      const iShip=headers.indexOf('ค่าส่งรวม (฿)');
+      const iNote=headers.indexOf('หมายเหตุ');
+      
+      const statusMap={'ออกโกดังจีน รอเข้าไทย':'ออกโกดังจีน รอเข้าไทย','เข้าโกดังจีนแล้ว':'เข้าโกดังจีนแล้ว','ถึงไทยแล้ว':'ถึงไทยแล้ว','รับของแล้ว':'รับของแล้ว'};
+      
+      function excelDateToStr(v){
+        if(!v)return null;
+        if(typeof v==='string'&&v.includes('/'))return v.split('/').reverse().join('-');
+        if(typeof v==='number'){const d=new Date(Math.round((v-25569)*86400*1000));return d.toISOString().slice(0,10);}
+        return null;
+      }
+
+      let added=0,skipped=0;
+      const existing=new Set(parcels.map(p=>p.tracking));
+      
+      for(let i=hRow+1;i<rows.length;i++){
+        const row=rows[i];
+        if(!row||!row[iTrack])continue;
+        const tracking=String(row[iTrack]).trim();
+        if(!tracking)continue;
+        if(existing.has(tracking)){skipped++;continue;}
+        
+        const data={
+          tracking,
+          status:statusMap[row[iStatus]]||row[iStatus]||'ยังไม่เข้าโกดัง',
+          method:row[iMethod]==='เรือ'?'เรือ':'รถ',
+          lot:row[iLot]||null,
+          date_out:excelDateToStr(row[iDateOut]),
+          date_th:excelDateToStr(row[iDateTh]),
+          kg:parseFloat(row[iKg])||null,
+          ship_ae:parseFloat(row[iShip])||0,
+          note:row[iNote]||null,
+          customer:null,product:null,qty:null,invoice:null,order_date:null
+        };
+        
+        try{await dbIns('parcels',data);added++;}catch(e){console.error(e);}
+      }
+      
+      await loadAll();
+      input.value='';
+      toast(`✅ นำเข้าแล้ว ${added} รายการ${skipped?' · ข้าม '+skipped+' ซ้ำ':''}`);
+    }catch(e){toast('❌ '+e.message);console.error(e);}
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 function exportCSV(){
