@@ -2,330 +2,403 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>จัดซื้อจีน</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ติดตามการจัดซื้อ</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--pink:#FF6B9D;--pink-l:#FFF0F6;--pink-m:#FFB3D1;--purple:#845EF7;--purple-l:#F3F0FF;--purple-m:#B197FC;--teal:#20C997;--teal-l:#E6FCF5;--teal-m:#63E6BE;--yellow:#FFD43B;--yellow-l:#FFF9DB;--orange:#FF922B;--orange-l:#FFF4E6;--orange-m:#FFA94D;--blue:#339AF0;--blue-l:#E7F5FF;--blue-m:#74C0FC;--red:#FF6B6B;--red-l:#FFF5F5;--text:#2D2D2D;--text2:#666;--text3:#999;--bg:#F8F9FF;--card:#fff;--border:rgba(0,0,0,0.08)}
-html,body{height:100%;overflow:hidden}
-.app{max-width:430px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);height:100vh;display:flex;flex-direction:column;position:relative}
-.top-bar{padding:14px 16px 10px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.app-logo{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,var(--pink),var(--purple));display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px}
+:root{
+  --br:#8B5E3C;--br-d:#5C3D20;--br-l:#F5EEE8;--br-m:#C4956A;
+  --gr:#5C8C6B;--gr-l:#EEF5F0;
+  --am:#B8662A;--am-l:#FBF3EC;
+  --bl:#4A6FA5;--bl-l:#EEF2F9;
+  --rd:#A84444;--rd-l:#FAF0F0;
+  --text:#2C1A0E;--text2:#5C4033;--text3:#A08878;
+  --bg:#F5EDE4;--card:#FFFCF9;--border:rgba(100,60,20,0.1);
+  --nav-h:70px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+.app{max-width:430px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+
+/* Top bar */
+.top-bar{padding:14px 16px 10px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:10}
+.app-logo{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#8B5E3C,#6B4F3A);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;box-shadow:0 4px 10px rgba(107,79,58,0.3)}
 .top-info{margin-left:10px;flex:1}
-.top-title{font-size:17px;font-weight:600;color:var(--text)}
+.top-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
 .top-date{font-size:11px;color:var(--text3);margin-top:1px}
-.sync-status{font-size:10px;margin-top:2px;display:flex;align-items:center;gap:4px}
-.sync-ok{color:var(--teal)}.sync-err{color:var(--red)}.sync-loading{color:var(--text3)}
-.notif-wrap{position:relative}
-.icon-btn{width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--purple-l)}
-.notif-dot{width:9px;height:9px;background:var(--pink);border-radius:50%;position:absolute;top:5px;right:5px;border:2px solid #fff;display:none}
-.content{flex:1;overflow-y:auto;padding:14px 14px 86px;background:var(--bg);-webkit-overflow-scrolling:touch}
-.panel{display:none}.panel.on{display:block}
-.hero{border-radius:24px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--purple) 0%,var(--pink) 100%)}
-.hero-deco{position:absolute;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.12);right:-20px;top:-20px;pointer-events:none}
-.hero-deco2{position:absolute;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,0.08);right:50px;bottom:-20px;pointer-events:none}
-.hero-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.2);border-radius:99px;padding:4px 12px;font-size:11px;color:#fff;margin-bottom:10px}
-.hero-val{font-size:32px;font-weight:700;color:#fff;line-height:1}
-.hero-sub{font-size:12px;color:rgba(255,255,255,0.8);margin-top:6px}
+.sync-status{font-size:10px;margin-top:2px;color:var(--text3);display:flex;align-items:center;gap:4px}
+.sync-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.sync-ok .sync-dot{background:var(--gr)}.sync-err .sync-dot{background:var(--rd)}.sync-loading .sync-dot{background:var(--am);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* Pages */
+.pages{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(var(--nav-h)+14px);background:var(--bg);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),opacity 0.3s;will-change:transform}
+.page.active{transform:translateX(0);opacity:1;z-index:2}
+.page.right{transform:translateX(100%);opacity:0;z-index:1}
+.page.left{transform:translateX(-100%);opacity:0;z-index:1}
+.page.out-left{transform:translateX(-28%);opacity:0;z-index:1}
+.page.out-right{transform:translateX(28%);opacity:0;z-index:1}
+
+/* Bottom nav */
+.bottom-nav{height:var(--nav-h);background:var(--card);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 8px max(8px,env(safe-area-inset-bottom));flex-shrink:0;z-index:10}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px 4px;font-family:inherit;font-size:10px;font-weight:600;color:var(--text3);border-radius:14px;transition:all 0.2s}
+.nb.on{color:var(--br)}.nb i{font-size:22px}
+.nb-bar{height:3px;width:18px;border-radius:2px;background:transparent;margin-top:1px;transition:all 0.2s}
+.nb.on .nb-bar{background:var(--br)}
+
+/* FAB */
+.fab{width:54px;height:54px;border-radius:50%;border:none;cursor:pointer;color:#fff;font-size:26px;position:absolute;bottom:calc(var(--nav-h)+14px);right:16px;z-index:20;background:linear-gradient(135deg,#8B5E3C,#6B4F3A);box-shadow:0 6px 18px rgba(139,94,60,0.4);display:none;align-items:center;justify-content:center;transition:transform 0.15s}
+.fab:active{transform:scale(0.92)}
+
+/* Dashboard hero — ETA focused */
+.eta-hero{background:linear-gradient(135deg,#6B4F3A 0%,#8B5E3C 100%);border-radius:24px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;box-shadow:0 8px 24px rgba(107,79,58,0.25)}
+.eta-hero-deco{position:absolute;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.08);right:-25px;top:-25px;pointer-events:none}
+.eta-hero-deco2{position:absolute;width:65px;height:65px;border-radius:50%;background:rgba(255,255,255,0.05);left:50%;bottom:-20px;pointer-events:none}
+.eta-hero-label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.65);margin-bottom:6px}
+.eta-hero-count{font-size:48px;font-weight:800;color:#fff;line-height:1;letter-spacing:-2px}
+.eta-hero-unit{font-size:14px;font-weight:600;color:rgba(255,255,255,0.75);margin-top:2px}
+.eta-hero-sub{font-size:12px;color:rgba(255,255,255,0.55);margin-top:8px}
+
+/* Stat row */
 .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.stat{border-radius:20px;padding:14px}
-.stat-teal{background:var(--teal-l)}.stat-pink{background:var(--pink-l)}.stat-yellow{background:var(--yellow-l)}.stat-purple{background:var(--purple-l)}
-.stat-icon{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px;color:#fff}
-.stat-teal .stat-icon{background:var(--teal-m)}.stat-pink .stat-icon{background:var(--pink-m)}.stat-yellow .stat-icon{background:#FFE066}.stat-purple .stat-icon{background:var(--purple-m)}
-.stat-lbl{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:3px}
-.stat-val{font-size:20px;font-weight:700}
-.stat-teal .stat-val{color:var(--teal)}.stat-pink .stat-val{color:var(--pink)}.stat-yellow .stat-val{color:var(--orange)}.stat-purple .stat-val{color:var(--purple)}
+.stat{border-radius:18px;padding:14px}
+.stat-gr{background:var(--gr-l)}.stat-am{background:var(--am-l)}.stat-bl{background:var(--bl-l)}.stat-br{background:var(--br-l)}
+.stat-icon{font-size:22px;margin-bottom:6px;display:block}
+.stat-lbl{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:2px}
+.stat-val{font-size:22px;font-weight:800;letter-spacing:-0.5px}
+.stat-gr .stat-val{color:var(--gr)}.stat-am .stat-val{color:var(--am)}.stat-bl .stat-val{color:var(--bl)}.stat-br .stat-val{color:var(--br)}
+
+/* Section header */
 .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:6px}
-.sec-lbl{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
-.see-all{font-size:12px;color:var(--purple);border:none;background:none;cursor:pointer;font-family:inherit}
+.sec-lbl{font-size:15px;font-weight:700;color:var(--text)}
+.see-all{font-size:12px;font-weight:600;color:var(--br);border:none;background:none;cursor:pointer;font-family:inherit}
+
+/* ETA chips */
 .chip-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}
 .chip-scroll::-webkit-scrollbar{display:none}
-.chip{flex-shrink:0;border-radius:20px;padding:14px;min-width:150px}
-.chip-purple{background:var(--purple-l)}.chip-pink{background:var(--pink-l)}.chip-teal{background:var(--teal-l)}.chip-orange{background:var(--orange-l)}
-.chip-days{font-size:26px;font-weight:700;line-height:1}
-.chip-purple .chip-days{color:var(--purple)}.chip-pink .chip-days{color:var(--pink)}.chip-teal .chip-days{color:var(--teal)}.chip-orange .chip-days{color:var(--orange)}
-.chip-unit{font-size:11px;margin-top:1px}.chip-purple .chip-unit,.chip-orange .chip-unit{color:var(--purple)}.chip-pink .chip-unit{color:var(--pink)}.chip-teal .chip-unit{color:var(--teal)}
-.chip-track{font-size:12px;font-weight:600;color:var(--text);margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chip-via{font-size:11px;color:var(--text3);margin-top:2px}
-.p-card{background:var(--card);border-radius:20px;border:1px solid var(--border);padding:16px;margin-bottom:10px}
-.p-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
-.p-track{font-size:14px;font-weight:600;color:var(--text)}.p-lot{font-size:11px;color:var(--text3);margin-top:2px}
-.pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:5px 12px;border-radius:99px;white-space:nowrap}
-.pill-ship{background:var(--orange-l);color:var(--orange)}.pill-arrive{background:var(--teal-l);color:var(--teal)}.pill-done{background:var(--teal-l);color:var(--teal)}.pill-wait{background:#F5F5F5;color:var(--text3)}.pill-profit{background:var(--teal-l);color:var(--teal)}.pill-loss{background:var(--red-l);color:var(--red)}.pill-soon{background:var(--purple-l);color:var(--purple)}
+.eta-chip{flex-shrink:0;border-radius:18px;padding:14px 16px;min-width:160px;border:1px solid var(--border);background:var(--card)}
+.eta-chip.urgent{background:var(--am-l);border-color:rgba(184,102,42,0.2)}
+.eta-chip.soon{background:var(--br-l);border-color:rgba(139,94,60,0.15)}
+.eta-chip-days{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1}
+.urgent .eta-chip-days{color:var(--am)}.soon .eta-chip-days{color:var(--br)}.eta-chip .eta-chip-days{color:var(--text2)}
+.eta-chip-label{font-size:11px;font-weight:600;margin-top:2px}
+.urgent .eta-chip-label{color:var(--am)}.soon .eta-chip-label{color:var(--br)}.eta-chip .eta-chip-label{color:var(--text3)}
+.eta-chip-tracking{font-size:12px;font-weight:700;color:var(--text);margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eta-chip-meta{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* Parcel card */
+.card-wrap{position:relative;overflow:hidden;border-radius:18px;margin-bottom:10px}
+.p-card{background:var(--card);border-radius:18px;padding:16px;position:relative;z-index:2;transform:translateX(0);transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);user-select:none;border:1px solid var(--border)}
+.p-card.swiped{transform:translateX(-96px)}
+.swipe-acts{position:absolute;right:0;top:0;bottom:0;width:96px;display:flex;flex-direction:column;border-radius:0 18px 18px 0;overflow:hidden}
+.sw-edit{flex:1;background:#4A6FA5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:none;color:#fff;font-family:inherit;font-size:11px;font-weight:700}
+.sw-del{flex:1;background:#A84444;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:none;color:#fff;font-family:inherit;font-size:11px;font-weight:700}
+
+.p-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.p-tracking{font-size:14px;font-weight:700;color:var(--text)}
+.p-inv{font-size:11px;color:var(--text3);margin-top:2px;font-weight:500}
 .p-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.tag{font-size:11px;padding:4px 10px;border-radius:99px;background:var(--bg);color:var(--text2);border:1px solid var(--border);display:flex;align-items:center;gap:4px}
-.eta-box{border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.eta-ship{background:var(--orange-l)}.eta-ship i{color:var(--orange)}.eta-ship span{font-size:12px;font-weight:600;color:var(--orange)}
-.eta-ok{background:var(--teal-l)}.eta-ok i{color:var(--teal)}.eta-ok span{font-size:12px;font-weight:600;color:var(--teal)}
-.act-row{display:flex;gap:8px}
-.act-btn{flex:1;padding:9px;border-radius:12px;font-size:13px;cursor:pointer;font-family:inherit;border:1px solid var(--border);background:var(--bg);color:var(--text2);display:flex;align-items:center;justify-content:center;gap:5px;font-weight:500}
-.act-btn:active{opacity:0.7}
-.act-del{color:var(--red);border-color:var(--pink-m);background:var(--pink-l)}
-.cost-card{background:var(--card);border-radius:20px;border:1px solid var(--border);padding:16px;margin-bottom:10px}
-.cc-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
-.cc-product{font-size:14px;font-weight:600;color:var(--text)}.cc-track{font-size:11px;color:var(--text3);margin-top:2px}
-.cc-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.cc-num{border-radius:14px;padding:10px 12px;text-align:center}
-.cn-cost{background:var(--orange-l)}.cn-ship{background:var(--blue-l)}.cn-sell{background:var(--purple-l)}
-.cn-lbl{font-size:10px;font-weight:600;margin-bottom:3px}
-.cn-cost .cn-lbl{color:var(--orange)}.cn-ship .cn-lbl{color:var(--blue)}.cn-sell .cn-lbl{color:var(--purple)}
-.cn-val{font-size:13px;font-weight:600}
-.cn-cost .cn-val{color:var(--orange)}.cn-ship .cn-val{color:var(--blue)}.cn-sell .cn-val{color:var(--purple)}
+.tag{font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--bg);color:var(--text2);border:1px solid var(--border)}
+
+/* Status pill */
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:5px 12px;border-radius:99px;white-space:nowrap}
+.p-wait{background:#F0EBE5;color:var(--text3)}
+.p-wh{background:var(--bl-l);color:var(--bl)}
+.p-ship{background:var(--am-l);color:var(--am)}
+.p-arrive{background:var(--gr-l);color:var(--gr)}
+.p-done{background:var(--br-l);color:var(--br)}
+
+/* ETA bar */
+.eta-bar{border-radius:12px;padding:9px 14px;font-size:12px;font-weight:600;margin-bottom:10px}
+.eta-bar-ship{background:var(--am-l);color:var(--am)}
+.eta-bar-ok{background:var(--gr-l);color:var(--gr)}
+
+/* Cost summary row */
+.cost-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.cs-box{border-radius:12px;padding:9px 10px;text-align:center}
+.cs-qty{background:var(--br-l)}.cs-cost{background:var(--am-l)}.cs-ship{background:var(--bl-l)}
+.cs-lbl{font-size:9px;font-weight:700;margin-bottom:2px}
+.cs-qty .cs-lbl{color:var(--br)}.cs-cost .cs-lbl{color:var(--am)}.cs-ship .cs-lbl{color:var(--bl)}
+.cs-val{font-size:13px;font-weight:800}
+.cs-qty .cs-val{color:var(--br)}.cs-cost .cs-val{color:var(--am)}.cs-ship .cs-val{color:var(--bl)}
+.no-cost-tag{font-size:11px;color:var(--am);background:var(--am-l);border:1px solid rgba(184,102,42,0.2);padding:3px 10px;border-radius:99px;font-weight:600;cursor:pointer}
+
+/* Filters */
 .filters{display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}
 .filters::-webkit-scrollbar{display:none}
-.fb{flex-shrink:0;background:var(--card);border:1px solid var(--border);border-radius:99px;padding:7px 16px;font-size:13px;cursor:pointer;color:var(--text2);font-family:inherit;font-weight:500}
-.fb.on{background:var(--purple);color:#fff;border-color:var(--purple)}
-.sum-card{background:var(--card);border-radius:20px;border:1px solid var(--border);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.sum-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
-.sum-nm{font-size:14px;font-weight:600;color:var(--text)}.sum-ct{font-size:11px;color:var(--text3);margin-top:2px}
-.sum-profit{font-size:15px;font-weight:700}.sum-sell{font-size:11px;color:var(--text3);margin-top:2px}
+.fb{flex-shrink:0;background:var(--card);border:1.5px solid var(--border);border-radius:99px;padding:7px 16px;font-size:13px;cursor:pointer;color:var(--text2);font-family:inherit;font-weight:600;transition:all 0.2s}
+.fb.on{background:var(--br);color:#fff;border-color:var(--br);box-shadow:0 3px 10px rgba(139,94,60,0.25)}
+
+/* Summary cards */
+.sum-card{background:var(--card);border-radius:18px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border)}
+.sum-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0}
+.sum-nm{font-size:14px;font-weight:700;color:var(--text)}.sum-ct{font-size:11px;color:var(--text3);margin-top:2px}
+.sum-cost{font-size:16px;font-weight:800;color:var(--text)}.sum-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* Calendar */
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.cal-month{font-size:17px;font-weight:700;color:var(--text)}
-.cal-arr{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:18px}
+.cal-month{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
+.cal-arr{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:18px}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cal-dow{text-align:center;font-size:11px;color:var(--text3);padding:4px 0;font-weight:600}
-.cal-day{min-height:50px;border-radius:14px;padding:5px;cursor:pointer;background:var(--card);border:1px solid var(--border)}
-.cal-day.other{opacity:0.3;background:transparent;border-color:transparent}
-.cal-day.today{border:2px solid var(--purple);background:var(--purple-l)}
-.cal-day.sel{background:var(--purple);border-color:var(--purple)}
+.cal-dow{text-align:center;font-size:11px;color:var(--text3);padding:4px 0;font-weight:700}
+.cal-day{min-height:48px;border-radius:12px;padding:5px;cursor:pointer;background:var(--card);border:1px solid var(--border);transition:all 0.15s}
+.cal-day.other{opacity:0.25;background:transparent;border-color:transparent}
+.cal-day.today{border:2px solid var(--br);background:var(--br-l)}
+.cal-day.sel{background:var(--br);border-color:var(--br)}
 .cal-day.sel .cal-dn{color:#fff}
-.cal-dn{font-size:11px;font-weight:600;color:var(--text2)}
-.cal-day.today .cal-dn{color:var(--purple);font-weight:800}
+.cal-dn{font-size:11px;font-weight:700;color:var(--text2)}
+.cal-day.today .cal-dn{color:var(--br)}
 .dots-row{display:flex;gap:2px;flex-wrap:wrap;margin-top:3px}
-.dot{width:6px;height:6px;border-radius:50%}
-.dot-a{background:var(--teal)}.dot-e{background:var(--orange)}.dot-o{background:var(--purple)}
-.legend{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap}
-.leg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
+.dot{width:5px;height:5px;border-radius:50%}
+.dot-a{background:var(--gr)}.dot-e{background:var(--am)}.dot-o{background:var(--br)}
+.legend{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text2)}
 .leg-dot{width:8px;height:8px;border-radius:50%}
-.cal-detail{background:var(--card);border-radius:20px;border:1px solid var(--border);padding:16px;margin-bottom:14px;min-height:60px}
+.cal-detail{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;min-height:60px;border:1px solid var(--border)}
 .cal-ev{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);align-items:center}
 .cal-ev:last-child{border-bottom:none;padding-bottom:0}
-.cal-ev-icon{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.ev-a{background:var(--teal-l)}.ev-a i{color:var(--teal)}.ev-e{background:var(--orange-l)}.ev-e i{color:var(--orange)}.ev-o{background:var(--purple-l)}.ev-o i{color:var(--purple)}
-.fab{width:58px;height:58px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;position:absolute;bottom:74px;right:14px;z-index:10;background:linear-gradient(135deg,var(--purple),var(--pink))}
-.fab:active{opacity:0.85}
-.bottom-nav{background:var(--card);border-top:1px solid var(--border);display:flex;padding:6px 0 max(10px,env(safe-area-inset-bottom));flex-shrink:0}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px 4px;font-family:inherit;font-size:10px;color:var(--text3);border-radius:12px}
-.nb.on{color:var(--purple)}.nb i{font-size:22px}
-.sheet-wrap{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:flex-end}
+.cal-ev-icon{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ev-a{background:var(--gr-l)}.ev-e{background:var(--am-l)}.ev-o{background:var(--br-l)}
+
+/* Sheet */
+.sheet-wrap{display:none;position:absolute;inset:0;background:rgba(44,26,14,0.5);z-index:100;align-items:flex-end;backdrop-filter:blur(3px)}
 .sheet-wrap.on{display:flex}
-.sheet{background:var(--card);border-radius:24px 24px 0 0;padding:0 16px max(24px,env(safe-area-inset-bottom));width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.sheet-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:14px auto 18px}
-.sheet-hd{font-size:18px;font-weight:700;color:var(--text);display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.close-x{width:32px;height:32px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:16px}
-.fl{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.flbl{font-size:13px;font-weight:600;color:var(--text2)}
-input,select{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:14px;font-size:15px;background:var(--bg);color:var(--text);font-family:inherit}
-input:focus,select:focus{outline:none;border-color:var(--purple);background:#fff}
-.ferr{font-size:12px;color:var(--red);display:none;margin-top:3px}
-.sec-sep{font-size:12px;font-weight:600;color:var(--text3);padding:10px 0 8px;border-top:1px solid var(--border);margin-top:4px;display:flex;align-items:center;gap:6px}
-.linked-ok{font-size:12px;color:var(--teal);display:none;margin-top:4px;align-items:center;gap:5px}
-.eta-hint{border-radius:14px;padding:10px 14px;font-size:13px;display:none;margin-bottom:12px;align-items:center;gap:8px;background:var(--orange-l);color:var(--orange);font-weight:500}
+.sheet{background:var(--card);border-radius:24px 24px 0 0;padding:0 16px max(24px,env(safe-area-inset-bottom));width:100%;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp 0.28s cubic-bezier(0.4,0,0.2,1)}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.sheet-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 16px}
+.sheet-hd{font-size:18px;font-weight:800;color:var(--text);display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;letter-spacing:-0.5px}
+.close-x{width:32px;height:32px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:15px;font-weight:700}
+
+/* Step bar */
+.step-bar{display:flex;background:var(--bg);border-radius:14px;padding:4px;margin-bottom:18px;gap:3px}
+.step-btn{flex:1;padding:10px 8px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;background:transparent;color:var(--text3);border-radius:10px;transition:all 0.2s}
+.step-btn.active{background:var(--card);color:var(--br);box-shadow:0 2px 6px rgba(100,60,20,0.12)}
+
+.step-panel{display:none}.step-panel.on{display:block}
+
+.fl{display:flex;flex-direction:column;gap:6px;margin-bottom:13px}
+.flbl{font-size:13px;font-weight:700;color:var(--text2)}
+input,select{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:14px;font-size:15px;background:var(--bg);color:var(--text);font-family:inherit;font-weight:500;-webkit-appearance:none;transition:border-color 0.2s,box-shadow 0.2s}
+input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box-shadow:0 0 0 3px rgba(139,94,60,0.12)}
+.ferr{font-size:12px;color:var(--rd);font-weight:600;display:none;margin-top:3px}
+.sec-sep{font-size:12px;font-weight:800;color:var(--text2);padding:10px 0 8px;border-top:1.5px solid var(--bg);margin-top:4px}
+.eta-hint{border-radius:12px;padding:9px 14px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;margin-bottom:12px;background:var(--am-l);color:var(--am)}
+.s2-ref{background:var(--br-l);border-radius:14px;padding:10px 14px;margin-bottom:14px;font-size:13px;font-weight:600;color:var(--br);line-height:1.6}
+
+/* Calc strip */
 .calc-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
-.cs{border-radius:16px;padding:12px;text-align:center}
-.cs-c{background:var(--orange-l)}.cs-c .cs-lbl{color:var(--orange)}.cs-c .cs-val{color:var(--orange)}
-.cs-s{background:var(--blue-l)}.cs-s .cs-lbl{color:var(--blue)}.cs-s .cs-val{color:var(--blue)}
-.cs-p{background:var(--teal-l)}.cs-p .cs-lbl{color:var(--teal)}.cs-p .cs-val{color:var(--teal)}
-.cs-pn{background:var(--red-l)}.cs-pn .cs-lbl{color:var(--red)}.cs-pn .cs-val{color:var(--red)}
-.cs-lbl{font-size:11px;margin-bottom:4px;font-weight:600}.cs-val{font-size:15px;font-weight:700}
-.btn-main{width:100%;padding:16px;border:none;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,var(--purple),var(--pink));margin-top:6px}
-.btn-main:active{opacity:0.85}
-.btn-ghost{width:100%;padding:14px;background:transparent;color:var(--text2);border:1.5px solid var(--border);border-radius:16px;font-size:15px;cursor:pointer;font-family:inherit;margin-top:10px}
-.toast{position:absolute;bottom:82px;left:14px;right:14px;padding:13px 18px;border-radius:16px;font-size:14px;font-weight:600;text-align:center;z-index:200;display:none;color:#fff;background:linear-gradient(135deg,var(--purple),var(--pink))}
-.toast.show{display:block}
-.empty-state{text-align:center;padding:48px 20px}
-.empty-icon{font-size:52px;margin-bottom:14px;opacity:0.4}
-.empty-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px}
-.empty-sub{font-size:13px;color:var(--text3)}
-.loading-state{text-align:center;padding:32px;color:var(--text3);font-size:13px}
+.cs{border-radius:14px;padding:12px;text-align:center}
+.cs-qty2{background:var(--br-l)}.cs-qty2 .csl{color:var(--br)}.cs-qty2 .csv{color:var(--br)}
+.cs-c{background:var(--am-l)}.cs-c .csl{color:var(--am)}.cs-c .csv{color:var(--am)}
+.cs-s{background:var(--bl-l)}.cs-s .csl{color:var(--bl)}.cs-s .csv{color:var(--bl)}
+.csl{font-size:11px;margin-bottom:4px;font-weight:700}.csv{font-size:16px;font-weight:800}
+
+.btn-main{width:100%;padding:16px;border:none;border-radius:16px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,#6B4F3A,#8B5E3C);margin-top:6px;box-shadow:0 4px 14px rgba(107,79,58,0.3);letter-spacing:-0.3px}
+.btn-main:active{opacity:0.85;transform:scale(0.98)}
+.btn-next{width:100%;padding:15px;border:none;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;color:#fff;background:linear-gradient(135deg,#5C3D20,#8B5E3C);margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px rgba(92,61,32,0.28)}
+.btn-ghost{width:100%;padding:13px;background:transparent;color:var(--text3);border:1.5px solid var(--border);border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:10px}
+.skip-link{text-align:center;margin-top:12px;font-size:13px;color:var(--text3);cursor:pointer;font-weight:600}
+.skip-link span{color:var(--br)}
+
+.toast{position:absolute;bottom:calc(var(--nav-h)+12px);left:14px;right:14px;padding:13px 18px;border-radius:16px;font-size:14px;font-weight:700;text-align:center;z-index:300;display:none;color:#fff;background:linear-gradient(135deg,#6B4F3A,#8B5E3C);box-shadow:0 6px 18px rgba(107,79,58,0.3)}
+.toast.show{display:block;animation:toastIn 0.25s ease}
+@keyframes toastIn{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.empty-state{text-align:center;padding:52px 20px}
+.empty-icon{font-size:52px;margin-bottom:14px}
+.empty-title{font-size:17px;font-weight:800;color:var(--text);margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--text3);font-weight:500}
 </style>
 </head>
 <body>
 <div class="app">
+
 <div class="top-bar">
   <div style="display:flex;align-items:center;gap:10px">
-    <div class="app-logo"><i class="ti ti-package"></i></div>
+    <div class="app-logo">🇨🇳</div>
     <div class="top-info">
-      <div class="top-title">จัดซื้อจีน</div>
+      <div class="top-title">ติดตามการจัดซื้อ</div>
       <div class="top-date" id="top-date"></div>
-      <div class="sync-status sync-loading" id="sync-status"><i class="ti ti-refresh" style="font-size:10px"></i>กำลังเชื่อมต่อ...</div>
+      <div class="sync-status sync-loading" id="sync-st"><span class="sync-dot"></span><span id="sync-txt">กำลังเชื่อมต่อ...</span></div>
     </div>
   </div>
-  <div class="notif-wrap">
-    <div class="icon-btn"><i class="ti ti-bell" style="color:var(--purple)"></i></div>
-    <div class="notif-dot" id="notif-dot"></div>
+  <div style="width:38px;height:38px;border-radius:50%;background:var(--br-l);display:flex;align-items:center;justify-content:center;position:relative">
+    🔔<div class="sync-dot" id="notif-dot" style="position:absolute;top:6px;right:6px;border:2px solid var(--card);display:none;background:var(--am)"></div>
   </div>
 </div>
 
-<div class="content">
-<div class="panel on" id="panel-dash">
-  <div class="hero">
-    <div class="hero-deco"></div><div class="hero-deco2"></div>
-    <div class="hero-tag"><i class="ti ti-chart-bar" style="font-size:12px"></i>ยอดขายรวม</div>
-    <div class="hero-val" id="dh-sell">฿0</div>
-    <div class="hero-sub" id="dh-sub">ยังไม่มีข้อมูล</div>
+<div class="pages" id="pages">
+
+<!-- Dashboard -->
+<div class="page active" id="page-dash">
+  <div class="eta-hero">
+    <div class="eta-hero-deco"></div><div class="eta-hero-deco2"></div>
+    <div class="eta-hero-label">📦 พัสดุที่กำลังจะมาถึง</div>
+    <div style="display:flex;align-items:baseline;gap:8px">
+      <div class="eta-hero-count" id="dh-coming-count">0</div>
+      <div class="eta-hero-unit">รายการ</div>
+    </div>
+    <div class="eta-hero-sub" id="dh-hero-sub">ใน 14 วันข้างหน้า</div>
   </div>
   <div class="stat-row">
-    <div class="stat stat-teal"><div class="stat-icon"><i class="ti ti-trending-up"></i></div><div class="stat-lbl">กำไรรวม</div><div class="stat-val" id="dh-profit">-</div></div>
-    <div class="stat stat-pink"><div class="stat-icon"><i class="ti ti-truck"></i></div><div class="stat-lbl">กำลังส่ง</div><div class="stat-val" id="dh-transit">0</div></div>
-    <div class="stat stat-yellow"><div class="stat-icon"><i class="ti ti-calendar"></i></div><div class="stat-lbl">มาใน 7 วัน</div><div class="stat-val" id="dh-coming7">0</div></div>
-    <div class="stat stat-purple"><div class="stat-icon"><i class="ti ti-users"></i></div><div class="stat-lbl">ลูกค้า</div><div class="stat-val" id="dh-custs">0</div></div>
+    <div class="stat stat-am"><span class="stat-icon">🚛</span><div class="stat-lbl">กำลังส่ง</div><div class="stat-val" id="dh-transit">0</div></div>
+    <div class="stat stat-gr"><span class="stat-icon">✅</span><div class="stat-lbl">ถึงไทยแล้ว</div><div class="stat-val" id="dh-arrived">0</div></div>
+    <div class="stat stat-br"><span class="stat-icon">💰</span><div class="stat-lbl">ต้นทุนรวม</div><div class="stat-val" id="dh-cost" style="font-size:16px">-</div></div>
+    <div class="stat stat-bl"><span class="stat-icon">👥</span><div class="stat-lbl">ลูกค้า</div><div class="stat-val" id="dh-custs">0</div></div>
   </div>
-  <div class="sec-hd"><div class="sec-lbl"><i class="ti ti-clock" style="color:var(--purple)"></i>กำลังจะมาถึง</div></div>
-  <div class="chip-scroll" id="dash-coming"></div>
-  <div class="sec-hd"><div class="sec-lbl"><i class="ti ti-star" style="color:var(--pink)"></i>top ลูกค้า</div><button class="see-all" onclick="goTab('sum',document.getElementById('nb-sum'))">ดูทั้งหมด</button></div>
-  <div id="dash-top3"></div>
+  <div class="sec-hd"><div class="sec-lbl">⏰ ETA — กำลังมาถึง</div></div>
+  <div class="chip-scroll" id="dash-coming">
+    <div style="color:var(--text3);font-size:13px;font-weight:500;padding:8px 0">กำลังโหลด...</div>
+  </div>
+  <div class="sec-hd"><div class="sec-lbl">📦 กำลังส่งทางรถ/เรือ</div><button class="see-all" onclick="navTo('parcel',2)">ดูทั้งหมด</button></div>
+  <div id="dash-transit-list"></div>
 </div>
 
-<div class="panel" id="panel-cal">
+<!-- Calendar -->
+<div class="page right" id="page-cal">
   <div class="cal-nav">
     <button class="cal-arr" onclick="calMove(-1)"><i class="ti ti-chevron-left"></i></button>
     <div class="cal-month" id="cal-title"></div>
     <button class="cal-arr" onclick="calMove(1)"><i class="ti ti-chevron-right"></i></button>
   </div>
   <div class="legend">
-    <div class="leg"><div class="leg-dot" style="background:var(--teal)"></div>ถึงจริง</div>
-    <div class="leg"><div class="leg-dot" style="background:var(--orange)"></div>คาดการณ์</div>
-    <div class="leg"><div class="leg-dot" style="background:var(--purple)"></div>ออกโกดัง</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--gr)"></div>✅ ถึงจริง</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--am)"></div>🕐 คาดการณ์</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--br)"></div>📤 ออกโกดัง</div>
   </div>
   <div class="cal-grid" id="cal-dows"></div>
   <div class="cal-grid" id="cal-days" style="margin-top:3px;margin-bottom:14px"></div>
-  <div class="cal-detail" id="cal-detail"><div style="color:var(--text3);font-size:13px">เลือกวันเพื่อดูรายละเอียด</div></div>
-  <div class="sec-hd"><div class="sec-lbl"><i class="ti ti-list" style="color:var(--teal)"></i>กำลังจะมาถึง</div></div>
+  <div class="cal-detail" id="cal-detail"><div style="color:var(--text3);font-size:13px;font-weight:500">เลือกวันเพื่อดูรายละเอียด</div></div>
+  <div class="sec-hd"><div class="sec-lbl">📋 รายการที่จะมาถึง</div></div>
   <div id="coming-all"></div>
 </div>
 
-<div class="panel" id="panel-parcel">
+<!-- Parcels -->
+<div class="page right" id="page-parcel">
   <div class="filters">
     <button class="fb on" onclick="setPF('all',this)">ทั้งหมด</button>
-    <button class="fb" onclick="setPF('ออกโกดังจีน รอเข้าไทย',this)">กำลังส่ง</button>
-    <button class="fb" onclick="setPF('ถึงไทยแล้ว',this)">ถึงไทย</button>
-    <button class="fb" onclick="setPF('รับของแล้ว',this)">รับแล้ว</button>
+    <button class="fb" onclick="setPF('ออกโกดังจีน รอเข้าไทย',this)">🚛 กำลังส่ง</button>
+    <button class="fb" onclick="setPF('ถึงไทยแล้ว',this)">✅ ถึงไทย</button>
+    <button class="fb" onclick="setPF('รับของแล้ว',this)">🏭 รับแล้ว</button>
   </div>
   <div id="parcel-list"></div>
 </div>
 
-<div class="panel" id="panel-cost"><div id="cost-list"></div></div>
-
-<div class="panel" id="panel-sum">
+<!-- Summary -->
+<div class="page right" id="page-sum">
   <div class="stat-row" style="margin-bottom:14px">
-    <div class="stat stat-teal"><div class="stat-icon"><i class="ti ti-trending-up"></i></div><div class="stat-lbl">กำไรรวม</div><div class="stat-val" id="sh-profit" style="font-size:16px">-</div></div>
-    <div class="stat stat-purple"><div class="stat-icon"><i class="ti ti-shopping-bag"></i></div><div class="stat-lbl">ยอดขาย</div><div class="stat-val" id="sh-sell" style="font-size:16px">-</div></div>
+    <div class="stat stat-am"><span class="stat-icon">💰</span><div class="stat-lbl">ต้นทุนรวม</div><div class="stat-val" id="sh-cost" style="font-size:16px">-</div></div>
+    <div class="stat stat-bl"><span class="stat-icon">🚢</span><div class="stat-lbl">ค่าส่งรวม</div><div class="stat-val" id="sh-ship" style="font-size:16px">-</div></div>
   </div>
-  <div class="sec-hd"><div class="sec-lbl"><i class="ti ti-users" style="color:var(--pink)"></i>รายลูกค้า</div><button class="see-all" onclick="exportCSV()"><i class="ti ti-download"></i> Export</button></div>
+  <div class="sec-hd"><div class="sec-lbl">👥 สรุปรายลูกค้า</div><button class="see-all" onclick="exportCSV()">⬇️ Export</button></div>
   <div id="sum-list"></div>
 </div>
+
 </div>
 
-<button class="fab" id="fab" style="display:none" onclick="openSheet()"><i class="ti ti-plus"></i></button>
+<button class="fab" id="fab" onclick="openSheet()">＋</button>
 
 <div class="bottom-nav">
-  <button class="nb on" id="nb-dash" onclick="goTab('dash',this)"><i class="ti ti-home"></i>หน้าหลัก</button>
-  <button class="nb" id="nb-cal" onclick="goTab('cal',this)"><i class="ti ti-calendar"></i>ปฏิทิน</button>
-  <button class="nb" id="nb-parcel" onclick="goTab('parcel',this)"><i class="ti ti-package"></i>พัสดุ</button>
-  <button class="nb" id="nb-cost" onclick="goTab('cost',this)"><i class="ti ti-receipt"></i>ต้นทุน</button>
-  <button class="nb" id="nb-sum" onclick="goTab('sum',this)"><i class="ti ti-chart-bar"></i>สรุป</button>
+  <button class="nb on" id="nb-0" onclick="navTo('dash',0)"><i class="ti ti-home"></i><div class="nb-bar"></div>หน้าหลัก</button>
+  <button class="nb" id="nb-1" onclick="navTo('cal',1)"><i class="ti ti-calendar"></i><div class="nb-bar"></div>ปฏิทิน</button>
+  <button class="nb" id="nb-2" onclick="navTo('parcel',2)"><i class="ti ti-package"></i><div class="nb-bar"></div>พัสดุ</button>
+  <button class="nb" id="nb-3" onclick="navTo('sum',3)"><i class="ti ti-chart-bar"></i><div class="nb-bar"></div>สรุป</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<div class="sheet-wrap" id="sheet-parcel">
+<!-- Sheet -->
+<div class="sheet-wrap" id="sheet-main">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-hd"><span id="sp-title">เพิ่มพัสดุ</span><button class="close-x" onclick="closeSheet('parcel')"><i class="ti ti-x"></i></button></div>
-    <div class="fl"><label class="flbl">เลขพัสดุ</label><input id="sp-tracking" placeholder="YT762290..."><span class="ferr" id="sp-et">กรุณาใส่เลขพัสดุ</span></div>
-    <div class="fl"><label class="flbl">ลูกค้า</label><input id="sp-customer" list="sp-custs" placeholder="ชื่อลูกค้า"><datalist id="sp-custs"></datalist></div>
-    <div class="fl"><label class="flbl">ล็อต</label><input id="sp-lot" placeholder="lot6042-46"></div>
-    <div class="fl"><label class="flbl">สถานะ</label>
-      <select id="sp-status"><option>ยังไม่เข้าโกดัง</option><option>เข้าโกดังจีนแล้ว</option><option>ออกโกดังจีน รอเข้าไทย</option><option>ถึงไทยแล้ว</option><option>รับของแล้ว</option></select>
+    <div class="sheet-hd"><span id="sm-title">เพิ่มรายการ</span><button class="close-x" onclick="closeSheet()">✕</button></div>
+    <div class="step-bar">
+      <button class="step-btn active" id="step-btn-1" onclick="goStep(1)">📦 Step 1: พัสดุ</button>
+      <button class="step-btn" id="step-btn-2" onclick="goStep(2)">💰 Step 2: ต้นทุน</button>
     </div>
-    <div class="fl"><label class="flbl">วิธีขนส่ง</label>
-      <select id="sp-method" onchange="upETA()"><option value="รถ">ทางรถ — 7 ถึง 14 วัน</option><option value="เรือ">ทางเรือ — 14 ถึง 20 วัน</option></select>
+
+    <!-- Step 1 -->
+    <div class="step-panel on" id="step-1">
+      <div class="fl"><label class="flbl">📦 เลขพัสดุ</label><input id="sp-tracking" placeholder="YT762290..."><span class="ferr" id="sp-et">กรุณาใส่เลขพัสดุ</span></div>
+      <div class="fl"><label class="flbl">🏭 เลขใบงาน</label><input id="sp-inv" placeholder="690815" inputmode="numeric"></div>
+      <div class="fl"><label class="flbl">👤 ลูกค้า</label><input id="sp-customer" list="sp-custs" placeholder="ชื่อลูกค้า"><datalist id="sp-custs"></datalist></div>
+      <div class="fl"><label class="flbl">🛍️ ชื่อสินค้า</label><input id="sp-product" placeholder="เช่น ขวดเซรั่ม 15ml"></div>
+      <div class="fl"><label class="flbl">🔢 จำนวน (ชิ้น)</label><input type="number" id="sp-qty" placeholder="0" inputmode="numeric"></div>
+      <div class="fl"><label class="flbl">🏷️ ล็อต</label><input id="sp-lot" placeholder="lot6042-46"></div>
+      <div class="fl"><label class="flbl">📌 สถานะ</label>
+        <select id="sp-status">
+          <option value="ยังไม่เข้าโกดัง">📥 ยังไม่เข้าโกดัง</option>
+          <option value="เข้าโกดังจีนแล้ว">🏪 เข้าโกดังจีนแล้ว</option>
+          <option value="ออกโกดังจีน รอเข้าไทย">🚛 ออกโกดังจีน รอเข้าไทย</option>
+          <option value="ถึงไทยแล้ว">✅ ถึงไทยแล้ว</option>
+          <option value="รับของแล้ว">🏭 รับของแล้ว</option>
+        </select>
+      </div>
+      <div class="fl"><label class="flbl">🚢 วิธีขนส่ง</label>
+        <select id="sp-method" onchange="upETA()">
+          <option value="รถ">🚛 ทางรถ — 7–14 วัน</option>
+          <option value="เรือ">🚢 ทางเรือ — 14–20 วัน</option>
+        </select>
+      </div>
+      <div class="fl"><label class="flbl">📤 วันออกโกดังจีน</label><input type="date" id="sp-dateout" oninput="upETA()"></div>
+      <div class="eta-hint" id="eta-hint"><span>🕐</span><span id="eta-txt">ใส่วันออกโกดังเพื่อคำนวณ ETA</span></div>
+      <div class="fl"><label class="flbl">✅ วันถึงไทย (จริง)</label><input type="date" id="sp-dateth"></div>
+      <div class="fl"><label class="flbl">⚖️ น้ำหนัก (กก.)</label><input type="number" id="sp-kg" placeholder="0.0"></div>
+      <div class="fl"><label class="flbl">📝 หมายเหตุ</label><input id="sp-note" placeholder=""></div>
+      <button class="btn-next" onclick="goStep(2)">ถัดไป: กรอกต้นทุน →</button>
+      <div class="skip-link" onclick="saveParcelOnly()">⏭️ <span>ข้ามต้นทุน บันทึกแค่พัสดุ</span></div>
+      <button class="btn-ghost" onclick="closeSheet()">ยกเลิก</button>
     </div>
-    <div class="fl"><label class="flbl">วันออกโกดังจีน</label><input type="date" id="sp-dateout" oninput="upETA()"></div>
-    <div class="eta-hint" id="eta-hint"><i class="ti ti-clock"></i><span id="eta-txt"></span></div>
-    <div class="fl"><label class="flbl">วันถึงไทย (จริง)</label><input type="date" id="sp-dateth"></div>
-    <div class="fl"><label class="flbl">กิโล</label><input type="number" id="sp-kg" placeholder="0.0"></div>
-    <div class="fl"><label class="flbl">ค่าส่ง AreeExpress (฿)</label><input type="number" id="sp-ship" placeholder="0"></div>
-    <div class="fl"><label class="flbl">หมายเหตุ</label><input id="sp-note" placeholder=""></div>
-    <button class="btn-main" id="sp-save" onclick="saveParcel()">บันทึก</button>
-    <button class="btn-ghost" onclick="closeSheet('parcel')">ยกเลิก</button>
+
+    <!-- Step 2 -->
+    <div class="step-panel" id="step-2">
+      <div class="s2-ref" id="s2-ref">📦 —</div>
+      <div class="sec-sep">💰 ต้นทุนค่าของ</div>
+      <div class="fl"><label class="flbl">ราคาของ 0.5 (฿)</label><input type="number" id="sc-c05" placeholder="0" oninput="calcC()"></div>
+      <div class="fl"><label class="flbl">ราคาของ 1 (฿)</label><input type="number" id="sc-c1" placeholder="0" oninput="calcC()"></div>
+      <div class="sec-sep">🚢 ค่าขนส่ง</div>
+      <div class="fl"><label class="flbl">ค่าส่ง AreeExpress (฿)</label><input type="number" id="sc-ae" placeholder="ดึงอัตโนมัติ" oninput="calcC()"></div>
+      <div class="fl"><label class="flbl">ค่าส่งถึงโรงงาน (฿)</label><input type="number" id="sc-fac" placeholder="0" oninput="calcC()"></div>
+      <div class="calc-strip">
+        <div class="cs cs-qty2"><div class="csl">🔢 ชิ้น</div><div class="csv" id="cc-qty">0</div></div>
+        <div class="cs cs-c"><div class="csl">💰 ต้นทุน</div><div class="csv" id="cc-cost">฿0</div></div>
+        <div class="cs cs-s"><div class="csl">🚢 ค่าส่ง</div><div class="csv" id="cc-ship">฿0</div></div>
+      </div>
+      <button class="btn-main" id="sm-save" onclick="saveBoth()">✅ บันทึกทั้งหมด</button>
+      <div class="skip-link" onclick="saveParcelOnly()">⏭️ <span>บันทึกแค่พัสดุ ไม่กรอกต้นทุน</span></div>
+      <button class="btn-ghost" onclick="goStep(1)">← กลับแก้ไขพัสดุ</button>
+    </div>
   </div>
 </div>
 
-<div class="sheet-wrap" id="sheet-cost">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-hd"><span id="sc-title">กรอกต้นทุน</span><button class="close-x" onclick="closeSheet('cost')"><i class="ti ti-x"></i></button></div>
-    <div class="fl"><label class="flbl">เลขพัสดุ</label><input id="sc-tracking" list="sc-tracks" placeholder="เลือกหรือพิมพ์" oninput="linkP()"><datalist id="sc-tracks"></datalist>
-      <div class="linked-ok" id="sc-linked"><i class="ti ti-check"></i>เชื่อมกับพัสดุแล้ว</div>
-      <span class="ferr" id="sc-et">กรุณาใส่เลขพัสดุ</span>
-    </div>
-    <div class="fl"><label class="flbl">ลูกค้า</label><input id="sc-customer" list="sc-custs" placeholder="ชื่อลูกค้า"><datalist id="sc-custs"></datalist><span class="ferr" id="sc-ec">กรุณาใส่ชื่อลูกค้า</span></div>
-    <div class="fl"><label class="flbl">ชื่อสินค้า</label><input id="sc-product" placeholder="เช่น ขวดเซรั่ม 15ml"><span class="ferr" id="sc-ep">กรุณาใส่ชื่อสินค้า</span></div>
-    <div class="sec-sep"><i class="ti ti-box"></i>ต้นทุนค่าของ</div>
-    <div class="fl"><label class="flbl">ราคาของ 0.5 (฿)</label><input type="number" id="sc-c05" placeholder="0" oninput="calcC()"></div>
-    <div class="fl"><label class="flbl">ราคาของ 1 (฿)</label><input type="number" id="sc-c1" placeholder="0" oninput="calcC()"></div>
-    <div class="sec-sep"><i class="ti ti-truck"></i>ค่าขนส่ง</div>
-    <div class="fl"><label class="flbl">ค่าส่ง AreeExpress (฿)</label><input type="number" id="sc-ae" placeholder="ดึงอัตโนมัติ" oninput="calcC()"></div>
-    <div class="fl"><label class="flbl">ค่าส่งถึงโรงงาน (฿)</label><input type="number" id="sc-fac" placeholder="0" oninput="calcC()"></div>
-    <div class="sec-sep"><i class="ti ti-tag"></i>ราคาขาย</div>
-    <div class="fl"><label class="flbl">ราคาขาย (฿)</label><input type="number" id="sc-sell" placeholder="0" oninput="calcC()"></div>
-    <div class="calc-strip">
-      <div class="cs cs-c"><div class="cs-lbl">ต้นทุน</div><div class="cs-val" id="cc-cost">฿0</div></div>
-      <div class="cs cs-s"><div class="cs-lbl">ขาย</div><div class="cs-val" id="cc-sell">฿0</div></div>
-      <div class="cs cs-p" id="cc-box"><div class="cs-lbl">กำไร</div><div class="cs-val" id="cc-profit">฿0</div></div>
-    </div>
-    <button class="btn-main" id="sc-save" onclick="saveCost()">บันทึก</button>
-    <button class="btn-ghost" onclick="closeSheet('cost')">ยกเลิก</button>
-  </div>
-</div>
 </div>
 
 <script>
-const SUPA_URL='https://rimbxghsxaqfypfzvzeq.supabase.co';
-const SUPA_KEY='sb_publishable_QTo-KJu09P3rvam1Ve6HyQ_lYSp9B4w';
-const H={'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+const SURL='https://rimbxghsxaqfypfzvzeq.supabase.co';
+const SK='sb_publishable_QTo-KJu09P3rvam1Ve6HyQ_lYSp9B4w';
+const H={'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=representation'};
+const get=async(t,p='')=>{const r=await fetch(`${SURL}/rest/v1/${t}?order=id.desc&${p}`,{headers:H});if(!r.ok)throw new Error(await r.text());return r.json();};
+const ins=async(t,d)=>{const r=await fetch(`${SURL}/rest/v1/${t}`,{method:'POST',headers:H,body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();};
+const upd=async(t,id,d)=>{const r=await fetch(`${SURL}/rest/v1/${t}?id=eq.${id}`,{method:'PATCH',headers:H,body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();};
+const del=async(t,id)=>{const r=await fetch(`${SURL}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE',headers:H});if(!r.ok)throw new Error(await r.text());};
 
-async function dbGet(table,params=''){
-  const r=await fetch(`${SUPA_URL}/rest/v1/${table}?order=id.desc&${params}`,{headers:H});
-  if(!r.ok)throw new Error(await r.text());
-  return r.json();
-}
-async function dbInsert(table,data){
-  const r=await fetch(`${SUPA_URL}/rest/v1/${table}`,{method:'POST',headers:H,body:JSON.stringify(data)});
-  if(!r.ok)throw new Error(await r.text());
-  return r.json();
-}
-async function dbUpdate(table,id,data){
-  const r=await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`,{method:'PATCH',headers:H,body:JSON.stringify(data)});
-  if(!r.ok)throw new Error(await r.text());
-  return r.json();
-}
-async function dbDelete(table,id){
-  const r=await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`,{method:'DELETE',headers:H});
-  if(!r.ok)throw new Error(await r.text());
-}
-
-function setSyncStatus(state,msg){
-  const el=document.getElementById('sync-status');
-  el.className='sync-status sync-'+state;
-  el.innerHTML=`<i class="ti ti-${state==='ok'?'check':state==='err'?'alert-circle':'refresh'}" style="font-size:10px"></i>${msg}`;
-}
+function setSS(s,m){const el=document.getElementById('sync-st');el.className='sync-status sync-'+s;document.getElementById('sync-txt').textContent=m;}
 
 const TODAY=new Date();TODAY.setHours(0,0,0,0);
 let parcels=[],costs=[],editPid=null,editCid=null,pFilter='all';
-let calY=TODAY.getFullYear(),calM=TODAY.getMonth(),selDay=null,curTab='dash';
+let calY=TODAY.getFullYear(),calM=TODAY.getMonth(),selDay=null,curPage='dash',curIdx=0;
 
 const nv=v=>parseFloat(v)||0;
 const fmt=v=>'฿'+Math.round(Number(v)).toLocaleString('th-TH');
-const fmt2=v=>'฿'+Number(v).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN=v=>Math.round(Number(v)).toLocaleString('th-TH');
 const MTH=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const MTHF=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const DOW=['อา','จ','อ','พ','พฤ','ศ','ส'];
 const ETA_D={รถ:[7,14],เรือ:[14,20]};
-const AV=['#845EF7','#FF6B9D','#20C997','#FF922B','#339AF0','#FFD43B','#FF6B6B'];
+const AV=['#8B5E3C','#5C8C6B','#4A6FA5','#B8662A','#7A6B55','#5C4A3A'];
+const SPILL={'ยังไม่เข้าโกดัง':'p-wait','เข้าโกดังจีนแล้ว':'p-wh','ออกโกดังจีน รอเข้าไทย':'p-ship','ถึงไทยแล้ว':'p-arrive','รับของแล้ว':'p-done'};
+const SEMI={'ยังไม่เข้าโกดัง':'📥','เข้าโกดังจีนแล้ว':'🏪','ออกโกดังจีน รอเข้าไทย':'🚛','ถึงไทยแล้ว':'✅','รับของแล้ว':'🏭'};
 
 function addD(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
 function dStr(d){if(!d)return'';const dt=typeof d==='string'?new Date(d):d;return`${dt.getDate()} ${MTH[dt.getMonth()]} ${dt.getFullYear()+543}`;}
@@ -336,66 +409,178 @@ function getETA(p){
   return{min:addD(p.date_out,r[0]),max:addD(p.date_out,r[1]),actual:false};
 }
 function initials(nm){return(nm||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
-const d=TODAY;
-document.getElementById('top-date').textContent=`${DOW[d.getDay()]} ${d.getDate()} ${MTH[d.getMonth()]} ${d.getFullYear()+543}`;
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 
-async function loadAll(){
-  try{
-    setSyncStatus('loading','กำลังโหลด...');
-    [parcels,costs]=await Promise.all([dbGet('parcels'),dbGet('costs')]);
-    setSyncStatus('ok','ซิงค์แล้ว');
-    fillDL();
-    if(curTab==='dash')renderDash();
-    if(curTab==='parcel')renderParcels();
-    if(curTab==='cost')renderCosts();
-    if(curTab==='sum')renderSum();
-    if(curTab==='cal')renderCal();
-  }catch(e){
-    setSyncStatus('err','เชื่อมต่อไม่ได้');
-    console.error(e);
-  }
-}
+const dd=TODAY;
+document.getElementById('top-date').textContent=`${DOW[dd.getDay()]} ${dd.getDate()} ${MTH[dd.getMonth()]} ${dd.getFullYear()+543}`;
 
-function goTab(name,btn){
-  curTab=name;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+function navTo(name,idx){
+  if(name===curPage)return;
+  const dir=idx>curIdx?1:-1;
+  const oldP=document.getElementById('page-'+curPage);
+  const newP=document.getElementById('page-'+name);
+  oldP.classList.remove('active');
+  oldP.classList.add(dir>0?'out-left':'out-right');
+  newP.classList.remove('right','left','out-left','out-right');
+  newP.classList.add(dir>0?'right':'left');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    newP.classList.add('active');
+    newP.classList.remove('right','left');
+    setTimeout(()=>oldP.classList.remove('out-left','out-right'),320);
+  }));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
-  btn.classList.add('on');
-  document.getElementById('panel-'+name).classList.add('on');
-  document.getElementById('fab').style.display=(name==='parcel'||name==='cost')?'flex':'none';
+  document.getElementById('nb-'+idx).classList.add('on');
+  document.getElementById('fab').style.display=name==='parcel'?'flex':'none';
+  curPage=name;curIdx=idx;
   if(name==='dash')renderDash();
   if(name==='cal')renderCal();
   if(name==='parcel')renderParcels();
-  if(name==='cost')renderCosts();
   if(name==='sum')renderSum();
 }
-function openSheet(){fillDL();if(curTab==='parcel'){editPid=null;resetPS();document.getElementById('sheet-parcel').classList.add('on');}if(curTab==='cost'){editCid=null;resetCS();document.getElementById('sheet-cost').classList.add('on');}}
-function closeSheet(n){document.getElementById('sheet-'+n).classList.remove('on');}
+
+async function loadAll(){
+  try{
+    setSS('loading','กำลังโหลด...');
+    [parcels,costs]=await Promise.all([get('parcels'),get('costs')]);
+    setSS('ok','ซิงค์แล้ว');fillDL();
+    if(curPage==='dash')renderDash();
+    if(curPage==='parcel')renderParcels();
+    if(curPage==='sum')renderSum();
+    if(curPage==='cal')renderCal();
+  }catch(e){setSS('err','เชื่อมต่อไม่ได้');console.error(e);}
+}
+
+function openSheet(){fillDL();editPid=null;editCid=null;resetForm();goStep(1);document.getElementById('sm-title').textContent='เพิ่มรายการ';document.getElementById('sm-save').textContent='✅ บันทึกทั้งหมด';document.getElementById('sheet-main').classList.add('on');}
+function closeSheet(){document.getElementById('sheet-main').classList.remove('on');}
+
+function goStep(n){
+  document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.step-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('step-'+n).classList.add('on');
+  document.getElementById('step-btn-'+n).classList.add('active');
+  if(n===2){
+    const t=document.getElementById('sp-tracking').value.trim();
+    const inv=document.getElementById('sp-inv').value.trim();
+    const cu=document.getElementById('sp-customer').value.trim();
+    const pr=document.getElementById('sp-product').value.trim();
+    const qty=document.getElementById('sp-qty').value.trim();
+    let ref=`📦 ${t||'—'}`;
+    if(inv)ref+=` · 🏭 ${inv}`;
+    if(cu)ref+=`\n👤 ${cu}`;
+    if(pr)ref+=` · 🛍️ ${pr}`;
+    if(qty)ref+=` · 🔢 ${qty} ชิ้น`;
+    document.getElementById('s2-ref').textContent=ref;
+    document.getElementById('cc-qty').textContent=qty||'0';
+    const ae=document.getElementById('sp-note');
+    calcC();
+  }
+}
+
+function upETA(){
+  const m=document.getElementById('sp-method').value,dout=document.getElementById('sp-dateout').value;
+  const h=document.getElementById('eta-hint');h.style.display='flex';
+  if(!dout){document.getElementById('eta-txt').textContent='ใส่วันออกโกดังเพื่อคำนวณ ETA';return;}
+  const r=ETA_D[m]||[7,14];const base=new Date(dout);
+  document.getElementById('eta-txt').textContent=`คาดถึงไทย: ${dStr(addD(base,r[0]))} – ${dStr(addD(base,r[1]))}`;
+}
+
+function resetForm(){
+  ['sp-tracking','sp-inv','sp-customer','sp-product','sp-qty','sp-lot','sp-dateout','sp-dateth','sp-kg','sp-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('sp-status').value='ยังไม่เข้าโกดัง';document.getElementById('sp-method').value='รถ';
+  document.getElementById('sp-et').style.display='none';
+  document.getElementById('eta-txt').textContent='ใส่วันออกโกดังเพื่อคำนวณ ETA';
+  ['sc-c05','sc-c1','sc-ae','sc-fac'].forEach(id=>document.getElementById(id).value='');
+  ['cc-cost','cc-ship'].forEach(id=>document.getElementById(id).textContent='฿0');
+  document.getElementById('cc-qty').textContent='0';
+}
+
+function getPData(){
+  return{tracking:document.getElementById('sp-tracking').value.trim(),invoice:document.getElementById('sp-inv').value.trim()||null,customer:document.getElementById('sp-customer').value.trim()||null,product:document.getElementById('sp-product').value.trim()||null,qty:parseInt(document.getElementById('sp-qty').value)||null,lot:document.getElementById('sp-lot').value.trim()||null,status:document.getElementById('sp-status').value,method:document.getElementById('sp-method').value,date_out:document.getElementById('sp-dateout').value||null,date_th:document.getElementById('sp-dateth').value||null,kg:parseFloat(document.getElementById('sp-kg').value)||null,ship_ae:0,note:document.getElementById('sp-note').value.trim()||null};
+}
+
+function getCData(tracking){
+  const c05=nv(document.getElementById('sc-c05').value),c1=nv(document.getElementById('sc-c1').value);
+  const ae=nv(document.getElementById('sc-ae').value),fac=nv(document.getElementById('sc-fac').value);
+  const qty=parseInt(document.getElementById('sp-qty').value)||0;
+  const cu=document.getElementById('sp-customer').value.trim();
+  const pr=document.getElementById('sp-product').value.trim();
+  const cost_total=c05+c1,ship_total=ae+fac;
+  return{tracking,customer:cu,product:pr,qty,cost05:c05,cost1:c1,cost_total,ship_ae:ae,ship_fac:fac,ship_total};
+}
+
+function calcC(){
+  const cost=nv(document.getElementById('sc-c05').value)+nv(document.getElementById('sc-c1').value);
+  const ship=nv(document.getElementById('sc-ae').value)+nv(document.getElementById('sc-fac').value);
+  const qty=parseInt(document.getElementById('sp-qty').value)||0;
+  document.getElementById('cc-cost').textContent=fmt(cost);
+  document.getElementById('cc-ship').textContent=fmt(ship);
+  document.getElementById('cc-qty').textContent=qty;
+}
+
+async function saveParcelOnly(){
+  const t=document.getElementById('sp-tracking').value.trim();
+  if(!t){document.getElementById('sp-et').style.display='block';goStep(1);return;}
+  document.getElementById('sp-et').style.display='none';
+  try{setSS('loading','กำลังบันทึก...');
+    if(editPid)await upd('parcels',editPid,getPData());else await ins('parcels',getPData());
+    await loadAll();closeSheet();editPid=null;toast('📦 บันทึกพัสดุแล้ว');
+  }catch(e){setSS('err','บันทึกไม่สำเร็จ');toast('❌ เกิดข้อผิดพลาด');}
+}
+
+async function saveBoth(){
+  const t=document.getElementById('sp-tracking').value.trim();
+  if(!t){goStep(1);document.getElementById('sp-et').style.display='block';return;}
+  try{setSS('loading','กำลังบันทึก...');
+    if(editPid)await upd('parcels',editPid,getPData());else await ins('parcels',getPData());
+    const cd=getCData(t);
+    if(editCid)await upd('costs',editCid,cd);else await ins('costs',cd);
+    await loadAll();closeSheet();editPid=null;editCid=null;toast('✅ บันทึกแล้ว');
+  }catch(e){setSS('err','บันทึกไม่สำเร็จ');toast('❌ เกิดข้อผิดพลาด');console.error(e);}
+}
 
 function renderDash(){
   const transit=parcels.filter(p=>p.status==='ออกโกดังจีน รอเข้าไทย');
-  const tSell=costs.reduce((s,c)=>s+nv(c.sell),0),tP=costs.reduce((s,c)=>s+nv(c.profit),0);
+  const arrived=parcels.filter(p=>p.status==='ถึงไทยแล้ว');
+  const tCost=costs.reduce((s,c)=>s+nv(c.cost_total),0);
+  const tShip=costs.reduce((s,c)=>s+nv(c.ship_total),0);
   const coming=parcels.filter(p=>{const e=getETA(p);if(!e||e.actual)return false;const diff=(e.min-TODAY)/86400000;return diff>=0&&diff<=14;}).sort((a,b)=>getETA(a).min-getETA(b).min);
-  const coming7=coming.filter(p=>(getETA(p).min-TODAY)/86400000<=7).length;
-  const byC={};costs.forEach(c=>{if(!byC[c.customer])byC[c.customer]=1;});
-  document.getElementById('dh-sell').textContent=fmt(tSell);
-  document.getElementById('dh-sub').textContent=tSell>0?`${costs.length} ออเดอร์`:'ยังไม่มีข้อมูล';
-  document.getElementById('dh-profit').textContent=tSell>0?fmt(tP):'-';
+  const byC={};costs.forEach(c=>{if(c.customer&&!byC[c.customer])byC[c.customer]=1;});
+
+  document.getElementById('dh-coming-count').textContent=coming.length;
+  document.getElementById('dh-hero-sub').textContent=coming.length?`ใน 14 วันข้างหน้า · ${coming.filter(p=>(getETA(p).min-TODAY)/86400000<=3).length} รายการจะมาใน 3 วัน`:'ไม่มีพัสดุที่คาดจะมาใน 14 วัน';
   document.getElementById('dh-transit').textContent=transit.length;
-  document.getElementById('dh-coming7').textContent=coming7;
+  document.getElementById('dh-arrived').textContent=arrived.length;
+  document.getElementById('dh-cost').textContent=tCost>0?fmt(tCost+tShip):'-';
   document.getElementById('dh-custs').textContent=Object.keys(byC).length||0;
-  document.getElementById('notif-dot').style.display=coming7>0?'block':'none';
-  const chipColors=['chip-purple','chip-pink','chip-teal','chip-orange'];
+  document.getElementById('notif-dot').style.display=coming.filter(p=>(getETA(p).min-TODAY)/86400000<=3).length>0?'block':'none';
+
   const ce=document.getElementById('dash-coming');
-  if(!coming.length){ce.innerHTML='<div style="color:var(--text3);font-size:13px;padding:8px 0">ไม่มีพัสดุที่คาดจะมาใน 14 วัน</div>';return;}
-  ce.innerHTML=coming.map((p,i)=>{const e=getETA(p);const diff=Math.ceil((e.min-TODAY)/86400000);const cc=diff<=2?'chip-pink':chipColors[i%chipColors.length];return`<div class="chip ${cc}"><div class="chip-days">${diff===0?'วันนี้':diff}</div><div class="chip-unit">${diff>0?'วัน':''}</div><div class="chip-track">${p.tracking}</div><div class="chip-via">${p.method==='เรือ'?'เรือ':'รถ'}${p.customer?' · '+p.customer:''}</div></div>`;}).join('');
-  const byC2={};let idx=0;costs.forEach(c=>{if(!byC2[c.customer]){byC2[c.customer]={sell:0,profit:0,n:0,i:idx++};}byC2[c.customer].sell+=nv(c.sell);byC2[c.customer].profit+=nv(c.profit);byC2[c.customer].n++;});
-  const top3=Object.entries(byC2).sort((a,b)=>b[1].sell-a[1].sell).slice(0,3);
-  document.getElementById('dash-top3').innerHTML=top3.length?top3.map(([nm,d])=>`<div class="sum-card"><div style="display:flex;align-items:center;gap:10px"><div class="sum-av" style="background:${AV[d.i%AV.length]}">${initials(nm)}</div><div><div class="sum-nm">${nm}</div><div class="sum-ct">${d.n} ออเดอร์</div></div></div><div style="text-align:right"><div class="sum-profit" style="color:${d.profit>=0?'var(--teal)':'var(--red)'}">${fmt(d.profit)}</div><div class="sum-sell">${fmt(d.sell)}</div></div></div>`).join(''):'<div style="color:var(--text3);font-size:13px;padding:8px 0">ยังไม่มีข้อมูลต้นทุน</div>';
+  if(!coming.length){ce.innerHTML='<div style="color:var(--text3);font-size:13px;font-weight:500;padding:8px 0">ไม่มีพัสดุที่คาดจะมาใน 14 วัน</div>';return;}
+  ce.innerHTML=coming.map(p=>{
+    const e=getETA(p);const diff=Math.ceil((e.min-TODAY)/86400000);
+    const cls=diff<=2?'urgent':diff<=7?'soon':'';
+    return`<div class="eta-chip ${cls}">
+      <div class="eta-chip-days">${diff===0?'วันนี้':diff}</div>
+      <div class="eta-chip-label">${diff>0?'วัน เหลือ':''}</div>
+      <div class="eta-chip-tracking">${p.tracking}</div>
+      <div class="eta-chip-meta">${p.method==='เรือ'?'🚢 เรือ':'🚛 รถ'}${p.customer?' · '+p.customer:''}${p.qty?' · '+p.qty+' ชิ้น':''}</div>
+    </div>`;
+  }).join('');
+
+  const tl=document.getElementById('dash-transit-list');
+  if(!transit.length){tl.innerHTML='<div style="color:var(--text3);font-size:13px;font-weight:500;padding:8px 0">ไม่มีพัสดุระหว่างขนส่ง</div>';return;}
+  tl.innerHTML=transit.slice(0,3).map(p=>{
+    const e=getETA(p);
+    return`<div class="p-card" style="margin-bottom:8px">
+      <div class="p-top"><div><div class="p-tracking">${p.tracking}</div><div class="p-inv">${p.customer||''}${p.qty?' · '+p.qty+' ชิ้น':''}</div></div><div class="pill p-ship">🚛 กำลังส่ง</div></div>
+      ${e?`<div class="eta-bar eta-bar-ship">🕐 คาด ${dStr(e.min)} – ${dStr(e.max)}</div>`:''}
+    </div>`;
+  }).join('');
 }
 
 function buildEv(){const ev={};const add=(ds,e)=>{if(!ds)return;const k=(typeof ds==='string'?ds:ds.toISOString()).slice(0,10);if(!ev[k])ev[k]=[];ev[k].push(e);};parcels.forEach(p=>{if(p.date_out)add(p.date_out,{type:'out',tracking:p.tracking,customer:p.customer});if(p.date_th)add(p.date_th,{type:'arrive',tracking:p.tracking,customer:p.customer});else if(p.date_out){const e=getETA(p);if(e)add(e.min.toISOString(),{type:'est',tracking:p.tracking,method:p.method,customer:p.customer});}});return ev;}
+
 function renderCal(){
   const ev=buildEv();
   document.getElementById('cal-title').textContent=`${MTHF[calM]} ${calY+543}`;
@@ -410,69 +595,150 @@ function renderCal(){
 }
 function calMove(d){calM+=d;if(calM>11){calM=0;calY++;}if(calM<0){calM=11;calY--;}renderCal();}
 function selCal(k){selDay=k;renderCal();}
-function renderCalDetail(k,ev){const evs=(ev||buildEv())[k]||[];const el=document.getElementById('cal-detail');if(!evs.length){el.innerHTML=`<div style="color:var(--text3);font-size:13px">${dStr(k)} — ไม่มีรายการ</div>`;return;}el.innerHTML=`<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">${dStr(k)}</div>`+evs.map(e=>{const cls=e.type==='arrive'?'ev-a':e.type==='est'?'ev-e':'ev-o';const icon=e.type==='arrive'?'ti-circle-check':e.type==='est'?'ti-clock':'ti-arrow-right';const lbl=e.type==='arrive'?'ถึงไทยแล้ว':e.type==='est'?`คาดการณ์ (${e.method||''})`:' ออกโกดัง';return`<div class="cal-ev"><div class="cal-ev-icon ${cls}"><i class="ti ${icon}"></i></div><div><div style="font-size:13px;font-weight:600">${e.tracking}</div><div style="font-size:12px;color:var(--text2);margin-top:2px">${lbl}${e.customer?' · '+e.customer:''}</div></div></div>`;}).join('');}
-function renderComingAll(ev){const now=TODAY.getTime();const fut=Object.entries(ev).filter(([k,evs])=>new Date(k).getTime()>=now&&evs.some(e=>e.type==='est'||e.type==='arrive')).sort((a,b)=>new Date(a[0])-new Date(b[0])).slice(0,8);const el=document.getElementById('coming-all');if(!fut.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:8px 0">ไม่มีรายการที่จะมาถึง</div>';return;}el.innerHTML=fut.map(([k,evs])=>{const diff=Math.ceil((new Date(k)-TODAY)/86400000);const rel=diff===0?'วันนี้':diff===1?'พรุ่งนี้':`อีก ${diff} วัน`;const items=evs.filter(e=>e.type==='est'||e.type==='arrive');const isSoon=diff<=2;return`<div class="p-card"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600">${items.map(e=>e.tracking).join(', ')}</div><div style="font-size:12px;color:var(--text2);margin-top:2px">${dStr(k)} · ${items[0]?.type==='arrive'?'ถึงจริง':'คาดการณ์'}</div></div><div class="pill ${isSoon?'pill-ship':'pill-soon'}">${rel}</div></div></div>`;}).join('');}
+function renderCalDetail(k,ev){const evs=(ev||buildEv())[k]||[];const el=document.getElementById('cal-detail');if(!evs.length){el.innerHTML=`<div style="color:var(--text3);font-size:13px;font-weight:500">${dStr(k)} — ไม่มีรายการ</div>`;return;}el.innerHTML=`<div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">${dStr(k)}</div>`+evs.map(e=>{const cls=e.type==='arrive'?'ev-a':e.type==='est'?'ev-e':'ev-o';const em=e.type==='arrive'?'✅':e.type==='est'?'🕐':'📤';const lbl=e.type==='arrive'?'ถึงไทยแล้ว':e.type==='est'?`คาดการณ์ (${e.method==='เรือ'?'🚢 เรือ':'🚛 รถ'})`:' ออกโกดัง';return`<div class="cal-ev"><div class="cal-ev-icon ${cls}">${em}</div><div><div style="font-size:13px;font-weight:700">${e.tracking}</div><div style="font-size:12px;color:var(--text2);margin-top:2px;font-weight:500">${lbl}${e.customer?' · '+e.customer:''}</div></div></div>`;}).join('');}
+function renderComingAll(ev){const now=TODAY.getTime();const fut=Object.entries(ev).filter(([k,evs])=>new Date(k).getTime()>=now&&evs.some(e=>e.type==='est'||e.type==='arrive')).sort((a,b)=>new Date(a[0])-new Date(b[0])).slice(0,8);const el=document.getElementById('coming-all');if(!fut.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:8px 0;font-weight:500">ไม่มีรายการที่จะมาถึง</div>';return;}el.innerHTML=fut.map(([k,evs])=>{const diff=Math.ceil((new Date(k)-TODAY)/86400000);const rel=diff===0?'วันนี้':diff===1?'พรุ่งนี้':`อีก ${diff} วัน`;const items=evs.filter(e=>e.type==='est'||e.type==='arrive');const isSoon=diff<=3;return`<div class="p-card"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="p-tracking">${items.map(e=>e.tracking).join(', ')}</div><div class="p-inv">${dStr(k)} · ${items[0]?.type==='arrive'?'✅ ถึงจริง':'🕐 คาดการณ์'}</div></div><div class="pill ${isSoon?'p-ship':'p-wh'}">${rel}</div></div></div>`;}).join('');}
 
-const sPill=s=>({'ออกโกดังจีน รอเข้าไทย':'pill-ship','ถึงไทยแล้ว':'pill-arrive','รับของแล้ว':'pill-done'})[s]||'pill-wait';
 function setPF(f,btn){pFilter=f;document.querySelectorAll('.filters .fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderParcels();}
-function renderParcels(){const list=pFilter==='all'?parcels:parcels.filter(p=>p.status===pFilter);const el=document.getElementById('parcel-list');if(!list.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">ยังไม่มีพัสดุ</div><div class="empty-sub">กดปุ่ม + เพื่อเพิ่มรายการแรก</div></div>`;return;}el.innerHTML=list.map(p=>{const eta=getETA(p);let etaHtml='';if(eta){if(eta.actual)etaHtml=`<div class="eta-box eta-ok"><i class="ti ti-circle-check"></i><span>ถึงไทยแล้ว ${dStr(p.date_th)}</span></div>`;else etaHtml=`<div class="eta-box eta-ship"><i class="ti ti-clock"></i><span>คาด ${dStr(eta.min)} – ${dStr(eta.max)}</span></div>`;}return`<div class="p-card"><div class="p-hd"><div><div class="p-track">${p.tracking}</div><div class="p-lot">${p.lot||'—'}</div></div><div class="pill ${sPill(p.status)}">${p.status}</div></div><div class="p-tags">${p.customer?`<div class="tag"><i class="ti ti-user"></i>${p.customer}</div>`:''}<div class="tag"><i class="ti ti-${p.method==='เรือ'?'ship':'truck'}"></i>${p.method==='เรือ'?'เรือ':'รถ'}</div>${p.ship_ae?`<div class="tag">${fmt2(p.ship_ae)}</div>`:''}</div>${etaHtml}<div class="act-row"><button class="act-btn" onclick="editParcel(${p.id})"><i class="ti ti-edit"></i>แก้ไข</button><button class="act-btn act-del" onclick="delParcel(${p.id})"><i class="ti ti-trash"></i>ลบ</button></div></div>`;}).join('');}
 
-function upETA(){const m=document.getElementById('sp-method').value,dout=document.getElementById('sp-dateout').value;const h=document.getElementById('eta-hint');if(!dout){h.style.display='none';return;}const r=ETA_D[m]||[7,14];const base=new Date(dout);document.getElementById('eta-txt').textContent=`คาดถึงไทย: ${dStr(addD(base,r[0]))} ถึง ${dStr(addD(base,r[1]))}`;h.style.display='flex';}
-function resetPS(){['sp-tracking','sp-customer','sp-lot','sp-dateout','sp-dateth','sp-kg','sp-ship','sp-note'].forEach(id=>document.getElementById(id).value='');document.getElementById('sp-status').value='ยังไม่เข้าโกดัง';document.getElementById('sp-method').value='รถ';document.getElementById('eta-hint').style.display='none';document.getElementById('sp-title').textContent='เพิ่มพัสดุ';document.getElementById('sp-save').textContent='บันทึก';document.getElementById('sp-et').style.display='none';}
-
-async function saveParcel(){
-  const t=document.getElementById('sp-tracking').value.trim();
-  if(!t){document.getElementById('sp-et').style.display='block';return;}
-  document.getElementById('sp-et').style.display='none';
-  const data={tracking:t,customer:document.getElementById('sp-customer').value.trim()||null,lot:document.getElementById('sp-lot').value.trim()||null,status:document.getElementById('sp-status').value,method:document.getElementById('sp-method').value,date_out:document.getElementById('sp-dateout').value||null,date_th:document.getElementById('sp-dateth').value||null,kg:parseFloat(document.getElementById('sp-kg').value)||null,ship_ae:parseFloat(document.getElementById('sp-ship').value)||0,note:document.getElementById('sp-note').value.trim()||null};
-  try{
-    setSyncStatus('loading','กำลังบันทึก...');
-    if(editPid){await dbUpdate('parcels',editPid,data);}else{await dbInsert('parcels',data);}
-    await loadAll();
-    closeSheet('parcel');editPid=null;toast('บันทึกพัสดุแล้ว');
-  }catch(e){setSyncStatus('err','บันทึกไม่สำเร็จ');toast('เกิดข้อผิดพลาด');}
+function initSwipe(card,id){
+  let sx=0,sy=0,sw=false,swiped=false;
+  card.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;sw=false;},{passive:true});
+  card.addEventListener('touchmove',e=>{
+    const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;
+    if(!sw&&Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>8)sw=true;
+    if(sw){if(swiped&&dx>30){card.classList.remove('swiped');swiped=false;}else if(!swiped&&dx<-40){card.classList.add('swiped');swiped=true;}}
+  },{passive:true});
 }
 
-function editParcel(id){const p=parcels.find(x=>x.id===id);if(!p)return;editPid=id;resetPS();fillDL();document.getElementById('sp-tracking').value=p.tracking||'';document.getElementById('sp-customer').value=p.customer||'';document.getElementById('sp-lot').value=p.lot||'';document.getElementById('sp-status').value=p.status||'ยังไม่เข้าโกดัง';document.getElementById('sp-method').value=p.method||'รถ';document.getElementById('sp-dateout').value=p.date_out||'';document.getElementById('sp-dateth').value=p.date_th||'';document.getElementById('sp-kg').value=p.kg||'';document.getElementById('sp-ship').value=p.ship_ae||'';document.getElementById('sp-note').value=p.note||'';document.getElementById('sp-title').textContent='แก้ไขพัสดุ';document.getElementById('sp-save').textContent='อัพเดท';upETA();document.getElementById('sheet-parcel').classList.add('on');}
-
-async function delParcel(id){if(!confirm('ลบรายการนี้?'))return;try{setSyncStatus('loading','กำลังลบ...');await dbDelete('parcels',id);await loadAll();toast('ลบแล้ว');}catch(e){setSyncStatus('err','ลบไม่สำเร็จ');}}
-
-function renderCosts(){const el=document.getElementById('cost-list');if(!costs.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-title">ยังไม่มีต้นทุน</div><div class="empty-sub">กดปุ่ม + เพื่อกรอกข้อมูล</div></div>`;return;}el.innerHTML=costs.map(c=>`<div class="cost-card"><div class="cc-hd"><div><div class="cc-product">${c.product}</div><div class="cc-track">${c.tracking}${c.customer?' · '+c.customer:''}</div></div><div class="pill ${c.profit>=0?'pill-profit':'pill-loss'}">${fmt(c.profit)}</div></div><div class="cc-nums"><div class="cc-num cn-cost"><div class="cn-lbl">ต้นทุน</div><div class="cn-val">${fmt(c.cost_total)}</div></div><div class="cc-num cn-ship"><div class="cn-lbl">ค่าส่ง</div><div class="cn-val">${fmt(c.ship_total)}</div></div><div class="cc-num cn-sell"><div class="cn-lbl">ราคาขาย</div><div class="cn-val">${fmt(c.sell)}</div></div></div><div class="act-row" style="margin-top:12px"><button class="act-btn" onclick="editCost(${c.id})"><i class="ti ti-edit"></i>แก้ไข</button><button class="act-btn act-del" onclick="delCost(${c.id})"><i class="ti ti-trash"></i>ลบ</button></div></div>`).join('');}
-
-function linkP(){const t=document.getElementById('sc-tracking').value.trim();const p=parcels.find(x=>x.tracking===t);const lk=document.getElementById('sc-linked');if(p){if(p.ship_ae)document.getElementById('sc-ae').value=p.ship_ae;if(p.customer&&!document.getElementById('sc-customer').value)document.getElementById('sc-customer').value=p.customer;lk.style.display='flex';}else lk.style.display='none';calcC();}
-function calcC(){const cost=nv(document.getElementById('sc-c05').value)+nv(document.getElementById('sc-c1').value);const ship=nv(document.getElementById('sc-ae').value)+nv(document.getElementById('sc-fac').value);const sell=nv(document.getElementById('sc-sell').value);const profit=sell-cost-ship;document.getElementById('cc-cost').textContent=fmt2(cost+ship);document.getElementById('cc-sell').textContent=fmt2(sell);document.getElementById('cc-profit').textContent=fmt2(profit);document.getElementById('cc-box').className='cs '+(profit>=0?'cs-p':'cs-pn');}
-function resetCS(){['sc-tracking','sc-customer','sc-product','sc-c05','sc-c1','sc-ae','sc-fac','sc-sell'].forEach(id=>document.getElementById(id).value='');document.getElementById('sc-linked').style.display='none';['sc-et','sc-ec','sc-ep'].forEach(id=>document.getElementById(id).style.display='none');document.getElementById('sc-title').textContent='กรอกต้นทุน';document.getElementById('sc-save').textContent='บันทึก';['cc-cost','cc-sell','cc-profit'].forEach(id=>document.getElementById(id).textContent='฿0');document.getElementById('cc-box').className='cs cs-p';}
-
-async function saveCost(){
-  const t=document.getElementById('sc-tracking').value.trim(),cu=document.getElementById('sc-customer').value.trim(),pr=document.getElementById('sc-product').value.trim();
-  let ok=true;
-  if(!t){document.getElementById('sc-et').style.display='block';ok=false;}else document.getElementById('sc-et').style.display='none';
-  if(!cu){document.getElementById('sc-ec').style.display='block';ok=false;}else document.getElementById('sc-ec').style.display='none';
-  if(!pr){document.getElementById('sc-ep').style.display='block';ok=false;}else document.getElementById('sc-ep').style.display='none';
-  if(!ok)return;
-  const c05=nv(document.getElementById('sc-c05').value),c1=nv(document.getElementById('sc-c1').value);
-  const ae=nv(document.getElementById('sc-ae').value),fac=nv(document.getElementById('sc-fac').value);
-  const sell=nv(document.getElementById('sc-sell').value);
-  const cost_total=c05+c1,ship_total=ae+fac,profit=sell-cost_total-ship_total;
-  const data={tracking:t,customer:cu,product:pr,cost05:c05,cost1:c1,cost_total,ship_ae:ae,ship_fac:fac,ship_total,sell,profit};
-  try{
-    setSyncStatus('loading','กำลังบันทึก...');
-    if(editCid){await dbUpdate('costs',editCid,data);}else{await dbInsert('costs',data);}
-    await loadAll();closeSheet('cost');editCid=null;toast('บันทึกต้นทุนแล้ว');
-  }catch(e){setSyncStatus('err','บันทึกไม่สำเร็จ');toast('เกิดข้อผิดพลาด');}
+function renderParcels(){
+  const list=pFilter==='all'?parcels:parcels.filter(p=>p.status===pFilter);
+  const el=document.getElementById('parcel-list');
+  if(!list.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">ยังไม่มีพัสดุ</div><div class="empty-sub">กดปุ่ม + เพื่อเพิ่มรายการแรก</div></div>`;return;}
+  el.innerHTML=list.map(p=>{
+    const eta=getETA(p);let etaHtml='';
+    if(eta){if(eta.actual)etaHtml=`<div class="eta-bar eta-bar-ok">✅ ถึงไทยแล้ว ${dStr(p.date_th)}</div>`;else etaHtml=`<div class="eta-bar eta-bar-ship">🕐 คาด ${dStr(eta.min)} – ${dStr(eta.max)}</div>`;}
+    const pillCls=SPILL[p.status]||'p-wait';
+    const em=SEMI[p.status]||'📦';
+    const hasCost=costs.find(c=>c.tracking===p.tracking);
+    let costHtml='';
+    if(hasCost){
+      costHtml=`<div class="cost-summary">
+        <div class="cs-box cs-qty"><div class="cs-lbl">🔢 ชิ้น</div><div class="cs-val">${hasCost.qty||p.qty||'-'}</div></div>
+        <div class="cs-box cs-cost"><div class="cs-lbl">💰 ต้นทุน</div><div class="cs-val">${fmt(hasCost.cost_total)}</div></div>
+        <div class="cs-box cs-ship"><div class="cs-lbl">🚢 ค่าส่ง</div><div class="cs-val">${fmt(hasCost.ship_total)}</div></div>
+      </div>`;
+    }
+    return`<div class="card-wrap">
+      <div class="swipe-acts">
+        <button class="sw-edit" onclick="editParcel(${p.id})"><i class="ti ti-edit" style="font-size:18px"></i>แก้ไข</button>
+        <button class="sw-del" onclick="delParcel(${p.id})"><i class="ti ti-trash" style="font-size:18px"></i>ลบ</button>
+      </div>
+      <div class="p-card" id="card-${p.id}">
+        <div class="p-top">
+          <div>
+            <div class="p-tracking">${p.tracking}</div>
+            <div class="p-inv">${p.invoice?'🏭 '+p.invoice:''}${p.lot?' · '+p.lot:''}</div>
+          </div>
+          <div class="pill ${pillCls}">${em} ${p.status}</div>
+        </div>
+        <div class="p-tags">
+          ${p.customer?`<div class="tag">👤 ${p.customer}</div>`:''}
+          ${p.product?`<div class="tag">🛍️ ${p.product}</div>`:''}
+          <div class="tag">${p.method==='เรือ'?'🚢 เรือ':'🚛 รถ'}</div>
+          ${p.qty?`<div class="tag">🔢 ${p.qty} ชิ้น</div>`:''}
+          ${!hasCost?`<div class="no-cost-tag" onclick="editParcelAddCost(${p.id})">💰 เพิ่มต้นทุน</div>`:''}
+        </div>
+        ${etaHtml}
+        ${costHtml}
+      </div>
+    </div>`;
+  }).join('');
+  list.forEach(p=>{const c=document.getElementById('card-'+p.id);if(c)initSwipe(c,p.id);});
 }
 
-function editCost(id){const c=costs.find(x=>x.id===id);if(!c)return;editCid=id;resetCS();fillDL();document.getElementById('sc-tracking').value=c.tracking||'';document.getElementById('sc-customer').value=c.customer||'';document.getElementById('sc-product').value=c.product||'';document.getElementById('sc-c05').value=c.cost05||'';document.getElementById('sc-c1').value=c.cost1||'';document.getElementById('sc-ae').value=c.ship_ae||'';document.getElementById('sc-fac').value=c.ship_fac||'';document.getElementById('sc-sell').value=c.sell||'';document.getElementById('sc-title').textContent='แก้ไขต้นทุน';document.getElementById('sc-save').textContent='อัพเดท';calcC();document.getElementById('sheet-cost').classList.add('on');}
-async function delCost(id){if(!confirm('ลบ?'))return;try{setSyncStatus('loading','กำลังลบ...');await dbDelete('costs',id);await loadAll();toast('ลบแล้ว');}catch(e){setSyncStatus('err','ลบไม่สำเร็จ');}}
+function editParcel(id){
+  document.querySelectorAll('.p-card').forEach(c=>c.classList.remove('swiped'));
+  const p=parcels.find(x=>x.id===id);if(!p)return;
+  editPid=id;const c=costs.find(x=>x.tracking===p.tracking);editCid=c?c.id:null;
+  resetForm();fillDL();
+  document.getElementById('sp-tracking').value=p.tracking||'';
+  document.getElementById('sp-inv').value=p.invoice||'';
+  document.getElementById('sp-customer').value=p.customer||'';
+  document.getElementById('sp-product').value=p.product||'';
+  document.getElementById('sp-qty').value=p.qty||'';
+  document.getElementById('sp-lot').value=p.lot||'';
+  document.getElementById('sp-status').value=p.status||'ยังไม่เข้าโกดัง';
+  document.getElementById('sp-method').value=p.method||'รถ';
+  document.getElementById('sp-dateout').value=p.date_out||'';
+  document.getElementById('sp-dateth').value=p.date_th||'';
+  document.getElementById('sp-kg').value=p.kg||'';
+  document.getElementById('sp-note').value=p.note||'';
+  if(c){document.getElementById('sc-c05').value=c.cost05||'';document.getElementById('sc-c1').value=c.cost1||'';document.getElementById('sc-ae').value=c.ship_ae||'';document.getElementById('sc-fac').value=c.ship_fac||'';}
+  document.getElementById('sm-title').textContent='แก้ไขรายการ';document.getElementById('sm-save').textContent='✅ อัพเดท';
+  upETA();goStep(1);document.getElementById('sheet-main').classList.add('on');
+}
 
-function renderSum(){const tSell=costs.reduce((s,c)=>s+nv(c.sell),0),tP=costs.reduce((s,c)=>s+nv(c.profit),0);document.getElementById('sh-profit').textContent=tSell>0?fmt(tP):'-';document.getElementById('sh-sell').textContent=tSell>0?fmt(tSell):'-';const byC={};let idx=0;costs.forEach(c=>{if(!byC[c.customer]){byC[c.customer]={n:0,sell:0,profit:0,i:idx++};}byC[c.customer].n++;byC[c.customer].sell+=nv(c.sell);byC[c.customer].profit+=nv(c.profit);});const sorted=Object.entries(byC).sort((a,b)=>b[1].sell-a[1].sell);const el=document.getElementById('sum-list');if(!sorted.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">ยังไม่มีข้อมูล</div><div class="empty-sub">บันทึกต้นทุนในแท็บ "ต้นทุน" ก่อน</div></div>`;return;}el.innerHTML=sorted.map(([nm,d])=>`<div class="sum-card"><div style="display:flex;align-items:center;gap:10px"><div class="sum-av" style="background:${AV[d.i%AV.length]}">${initials(nm)}</div><div><div class="sum-nm">${nm}</div><div class="sum-ct">${d.n} ออเดอร์</div></div></div><div style="text-align:right"><div class="sum-profit" style="color:${d.profit>=0?'var(--teal)':'var(--red)'}">${fmt(d.profit)}</div><div class="sum-sell">${d.sell>0?(d.profit/d.sell*100).toFixed(1)+'% · ':''} ${fmt(d.sell)}</div></div></div>`).join('');}
+function editParcelAddCost(id){
+  const p=parcels.find(x=>x.id===id);if(!p)return;
+  editPid=id;editCid=null;resetForm();fillDL();
+  document.getElementById('sp-tracking').value=p.tracking||'';
+  document.getElementById('sp-inv').value=p.invoice||'';
+  document.getElementById('sp-customer').value=p.customer||'';
+  document.getElementById('sp-product').value=p.product||'';
+  document.getElementById('sp-qty').value=p.qty||'';
+  document.getElementById('sp-status').value=p.status||'ยังไม่เข้าโกดัง';
+  document.getElementById('sp-method').value=p.method||'รถ';
+  document.getElementById('sp-dateout').value=p.date_out||'';
+  document.getElementById('sm-title').textContent='เพิ่มต้นทุน';
+  upETA();goStep(2);document.getElementById('sheet-main').classList.add('on');
+}
 
-function fillDL(){const tr=parcels.map(p=>p.tracking).filter(Boolean);const cu=[...new Set([...parcels.map(p=>p.customer),...costs.map(c=>c.customer)].filter(Boolean))];document.getElementById('sc-tracks').innerHTML=tr.map(t=>`<option value="${t}">`).join('');['sc-custs','sp-custs'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=cu.map(c=>`<option value="${c}">`).join('');});}
-function exportCSV(){if(!costs.length){toast('ยังไม่มีข้อมูล');return;}const h=['เลขพัสดุ','สินค้า','ลูกค้า','ต้นทุน','ค่าส่ง','ราคาขาย','กำไร'];const r=costs.map(c=>[c.tracking,c.product,c.customer,c.cost_total,c.ship_total,c.sell,Number(c.profit).toFixed(2)].map(v=>`"${v||''}"`).join(','));const blob=new Blob(['\ufeff'+[h.join(','),...r].join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='จัดซื้อจีน.csv';a.click();}
+async function delParcel(id){
+  document.querySelectorAll('.p-card').forEach(c=>c.classList.remove('swiped'));
+  if(!confirm('ลบรายการนี้?'))return;
+  try{setSS('loading','กำลังลบ...');await del('parcels',id);await loadAll();toast('🗑️ ลบแล้ว');}
+  catch(e){setSS('err','ลบไม่สำเร็จ');}
+}
 
-document.querySelectorAll('.sheet-wrap').forEach(sw=>{sw.addEventListener('click',e=>{if(e.target===sw)sw.classList.remove('on');});});
+function renderSum(){
+  const tCost=costs.reduce((s,c)=>s+nv(c.cost_total),0);
+  const tShip=costs.reduce((s,c)=>s+nv(c.ship_total),0);
+  document.getElementById('sh-cost').textContent=tCost>0?fmt(tCost):'-';
+  document.getElementById('sh-ship').textContent=tShip>0?fmt(tShip):'-';
+  const byC={};let idx=0;
+  costs.forEach(c=>{if(!byC[c.customer]){byC[c.customer]={n:0,qty:0,cost:0,ship:0,i:idx++};}byC[c.customer].n++;byC[c.customer].qty+=nv(c.qty);byC[c.customer].cost+=nv(c.cost_total);byC[c.customer].ship+=nv(c.ship_total);});
+  // Also pull from parcels for customers without costs
+  parcels.forEach(p=>{if(p.customer&&!byC[p.customer]&&!costs.find(c=>c.customer===p.customer)){byC[p.customer]={n:0,qty:0,cost:0,ship:0,i:idx++};}if(p.customer&&byC[p.customer])byC[p.customer].n=Math.max(byC[p.customer].n,parcels.filter(x=>x.customer===p.customer).length);});
+  const sorted=Object.entries(byC).sort((a,b)=>b[1].cost-a[1].cost);
+  const el=document.getElementById('sum-list');
+  if(!sorted.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">ยังไม่มีข้อมูล</div><div class="empty-sub">เพิ่มพัสดุพร้อมต้นทุนในแท็บ "พัสดุ"</div></div>`;return;}
+  el.innerHTML=sorted.map(([nm,d])=>`<div class="sum-card">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="sum-av" style="background:${AV[d.i%AV.length]}">${initials(nm)}</div>
+      <div><div class="sum-nm">${nm}</div><div class="sum-ct">${d.n} พัสดุ${d.qty?' · '+fmtN(d.qty)+' ชิ้น':''}</div></div>
+    </div>
+    <div style="text-align:right">
+      <div class="sum-cost">${d.cost>0?fmt(d.cost+d.ship):'-'}</div>
+      <div class="sum-sub">${d.cost>0?`ของ ${fmt(d.cost)} · ส่ง ${fmt(d.ship)}`:'ยังไม่กรอกต้นทุน'}</div>
+    </div>
+  </div>`).join('');
+}
+
+function fillDL(){
+  const cu=[...new Set([...parcels.map(p=>p.customer),...costs.map(c=>c.customer)].filter(Boolean))];
+  ['sp-custs'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=cu.map(c=>`<option value="${c}">`).join('');});
+}
+
+function exportCSV(){
+  const rows=parcels.map(p=>{const c=costs.find(x=>x.tracking===p.tracking);return[p.tracking,p.invoice||'',p.customer||'',p.product||'',p.qty||'',p.status,p.method,p.date_out||'',p.date_th||'',c?c.cost_total:'',c?c.ship_total:''].map(v=>`"${v}"`).join(',');});
+  const h='เลขพัสดุ,ใบงาน,ลูกค้า,สินค้า,จำนวน,สถานะ,ขนส่ง,ออกโกดัง,ถึงไทย,ต้นทุน,ค่าส่ง';
+  const blob=new Blob(['\ufeff'+[h,...rows].join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='จัดซื้อจีน.csv';a.click();
+}
+
+document.getElementById('sheet-main').addEventListener('click',e=>{if(e.target===document.getElementById('sheet-main'))closeSheet();});
 loadAll();
-setInterval(loadAll, 30000);
+setInterval(loadAll,30000);
 </script>
 </body>
 </html>
