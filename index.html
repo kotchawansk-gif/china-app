@@ -288,6 +288,7 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
     <div class="step-panel on" id="step-1">
       <div class="fl"><label class="flbl">📦 เลขพัสดุ</label><input id="sp-tracking" placeholder="YT762290..."><span class="ferr" id="sp-et">กรุณาใส่เลขพัสดุ</span></div>
       <div class="fl"><label class="flbl">🏭 เลขใบงาน</label><input id="sp-inv" placeholder="690815" inputmode="numeric"></div>
+      <div class="fl"><label class="flbl">📅 วันที่สั่ง</label><input type="date" id="sp-order-date"></div>
       <div class="fl"><label class="flbl">👤 ลูกค้า</label><input id="sp-customer" list="sp-custs" placeholder="ชื่อลูกค้า"><datalist id="sp-custs"></datalist></div>
       <div class="fl"><label class="flbl">🛍️ ชื่อสินค้า</label><input id="sp-product" placeholder="เช่น ขวดเซรั่ม 15ml"></div>
       <div class="fl"><label class="flbl">🔢 จำนวน (ชิ้น)</label><input type="number" id="sp-qty" placeholder="0" inputmode="numeric"></div>
@@ -475,7 +476,7 @@ function calcC(){
 }
 
 function resetForm(){
-  ['sp-tracking','sp-inv','sp-customer','sp-product','sp-qty','sp-lot','sp-dateout','sp-dateth','sp-kg','sp-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['sp-tracking','sp-inv','sp-customer','sp-product','sp-qty','sp-lot','sp-order-date','sp-dateout','sp-dateth','sp-kg','sp-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('sp-status').value='ยังไม่เข้าโกดัง';
   document.getElementById('sp-method').value='รถ';
   document.getElementById('sp-et').style.display='none';
@@ -488,7 +489,7 @@ function resetForm(){
 }
 
 function getPData(){
-  return{tracking:document.getElementById('sp-tracking').value.trim(),invoice:document.getElementById('sp-inv').value.trim()||null,customer:document.getElementById('sp-customer').value.trim()||null,product:document.getElementById('sp-product').value.trim()||null,qty:parseInt(document.getElementById('sp-qty').value)||null,lot:document.getElementById('sp-lot').value.trim()||null,status:document.getElementById('sp-status').value,method:document.getElementById('sp-method').value,date_out:document.getElementById('sp-dateout').value||null,date_th:document.getElementById('sp-dateth').value||null,kg:parseFloat(document.getElementById('sp-kg').value)||null,ship_ae:0,note:document.getElementById('sp-note').value.trim()||null};
+  return{tracking:document.getElementById('sp-tracking').value.trim(),invoice:document.getElementById('sp-inv').value.trim()||null,order_date:document.getElementById('sp-order-date').value||null,customer:document.getElementById('sp-customer').value.trim()||null,product:document.getElementById('sp-product').value.trim()||null,qty:parseInt(document.getElementById('sp-qty').value)||null,lot:document.getElementById('sp-lot').value.trim()||null,status:document.getElementById('sp-status').value,method:document.getElementById('sp-method').value,date_out:document.getElementById('sp-dateout').value||null,date_th:document.getElementById('sp-dateth').value||null,kg:parseFloat(document.getElementById('sp-kg').value)||null,ship_ae:0,note:document.getElementById('sp-note').value.trim()||null};
 }
 
 function getCData(tracking){
@@ -615,7 +616,7 @@ function renderParcels(){
     const c=costs.find(x=>x.tracking===p.tracking);
     return`<div class="card-wrap"><div class="swipe-acts"><button class="sw-edit" onclick="editParcel(${p.id})"><i class="ti ti-edit" style="font-size:16px"></i>แก้ไข</button><button class="sw-del" onclick="delParcel(${p.id})"><i class="ti ti-trash" style="font-size:16px"></i>ลบ</button></div>
     <div class="p-card" id="card-${p.id}">
-      <div class="p-top"><div><div class="p-tracking">${p.tracking}</div>${p.product?`<div class="p-product">🛍️ ${p.product}</div>`:''}<div class="p-inv">${p.invoice?'🏭 '+p.invoice:''}${p.lot?' · '+p.lot:''}</div></div><div class="pill ${SPILL[p.status]||'p-wait'}">${SEMI[p.status]||'📦'} ${p.status}</div></div>
+      <div class="p-top"><div><div class="p-tracking">${p.tracking}</div>${p.product?`<div class="p-product">🛍️ ${p.product}</div>`:''}<div class="p-inv">${p.order_date?'📅 '+dStr(p.order_date)+' · ':''}${p.invoice?'🏭 '+p.invoice:''}${p.lot?' · '+p.lot:''}</div></div><div class="pill ${SPILL[p.status]||'p-wait'}">${SEMI[p.status]||'📦'} ${p.status}</div></div>
       <div class="p-tags">${p.customer?`<div class="tag">👤 ${p.customer}</div>`:''}<div class="tag">${p.method==='เรือ'?'🚢 เรือ':'🚛 รถ'}</div>${p.qty?`<div class="tag">🔢 ${p.qty} ชิ้น</div>`:''}</div>
       ${etaHtml}
       ${p.kg?`<div style="font-size:10px;color:var(--text3);margin-bottom:4px">⚖️ ${p.kg} กก.${p.note?' · 📝 '+p.note:''}</div>`:p.note?`<div style="font-size:10px;color:var(--text3);margin-bottom:4px">📝 ${p.note}</div>`:''}
@@ -639,6 +640,7 @@ function editParcel(id){
   document.getElementById('sp-lot').value=p.lot||'';
   document.getElementById('sp-status').value=p.status||'ยังไม่เข้าโกดัง';
   document.getElementById('sp-method').value=p.method||'รถ';
+  document.getElementById('sp-order-date').value=p.order_date||'';
   document.getElementById('sp-dateout').value=p.date_out||'';
   document.getElementById('sp-dateth').value=p.date_th||'';
   document.getElementById('sp-kg').value=p.kg||'';
@@ -661,6 +663,7 @@ function openCostForm(pid){
   document.getElementById('sp-lot').value=p.lot||'';
   document.getElementById('sp-status').value=p.status||'ยังไม่เข้าโกดัง';
   document.getElementById('sp-method').value=p.method||'รถ';
+  document.getElementById('sp-order-date').value=p.order_date||'';
   document.getElementById('sp-dateout').value=p.date_out||'';
   document.getElementById('sp-dateth').value=p.date_th||'';
   if(c){document.getElementById('sc-yuan').value=c.yuan||'';document.getElementById('sc-rate').value=c.rate||'5.00';document.getElementById('sc-ae').value=c.ship_ae||'';document.getElementById('sc-fac').value=c.ship_fac||'';calcC();}
