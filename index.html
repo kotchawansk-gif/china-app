@@ -7,17 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  --pink:#FF6B9D;--pink-l:#FFF0F6;--pink-m:#FFB3D1;
-  --purple:#845EF7;--purple-l:#F3F0FF;--purple-m:#B197FC;
-  --teal:#20C997;--teal-l:#E6FCF5;--teal-m:#63E6BE;
-  --yellow:#FFD43B;--yellow-l:#FFF9DB;
-  --orange:#FF922B;--orange-l:#FFF4E6;--orange-m:#FFA94D;
-  --blue:#339AF0;--blue-l:#E7F5FF;--blue-m:#74C0FC;
-  --red:#FF6B6B;--red-l:#FFF5F5;
-  --text:#2D2D2D;--text2:#666;--text3:#999;
-  --bg:#F8F9FF;--card:#fff;--border:rgba(0,0,0,0.08);
-}
+:root{--pink:#FF6B9D;--pink-l:#FFF0F6;--pink-m:#FFB3D1;--purple:#845EF7;--purple-l:#F3F0FF;--purple-m:#B197FC;--teal:#20C997;--teal-l:#E6FCF5;--teal-m:#63E6BE;--yellow:#FFD43B;--yellow-l:#FFF9DB;--orange:#FF922B;--orange-l:#FFF4E6;--orange-m:#FFA94D;--blue:#339AF0;--blue-l:#E7F5FF;--blue-m:#74C0FC;--red:#FF6B6B;--red-l:#FFF5F5;--text:#2D2D2D;--text2:#666;--text3:#999;--bg:#F8F9FF;--card:#fff;--border:rgba(0,0,0,0.08)}
 html,body{height:100%;overflow:hidden}
 .app{max-width:430px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);height:100vh;display:flex;flex-direction:column;position:relative}
 .top-bar{padding:14px 16px 10px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -25,6 +15,8 @@ html,body{height:100%;overflow:hidden}
 .top-info{margin-left:10px;flex:1}
 .top-title{font-size:17px;font-weight:600;color:var(--text)}
 .top-date{font-size:11px;color:var(--text3);margin-top:1px}
+.sync-status{font-size:10px;margin-top:2px;display:flex;align-items:center;gap:4px}
+.sync-ok{color:var(--teal)}.sync-err{color:var(--red)}.sync-loading{color:var(--text3)}
 .notif-wrap{position:relative}
 .icon-btn{width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--purple-l)}
 .notif-dot{width:9px;height:9px;background:var(--pink);border-radius:50%;position:absolute;top:5px;right:5px;border:2px solid #fff;display:none}
@@ -53,7 +45,7 @@ html,body{height:100%;overflow:hidden}
 .chip-purple{background:var(--purple-l)}.chip-pink{background:var(--pink-l)}.chip-teal{background:var(--teal-l)}.chip-orange{background:var(--orange-l)}
 .chip-days{font-size:26px;font-weight:700;line-height:1}
 .chip-purple .chip-days{color:var(--purple)}.chip-pink .chip-days{color:var(--pink)}.chip-teal .chip-days{color:var(--teal)}.chip-orange .chip-days{color:var(--orange)}
-.chip-unit{font-size:11px;margin-top:1px}.chip-purple .chip-unit{color:var(--purple)}.chip-pink .chip-unit{color:var(--pink)}.chip-teal .chip-unit{color:var(--teal)}.chip-orange .chip-unit{color:var(--orange)}
+.chip-unit{font-size:11px;margin-top:1px}.chip-purple .chip-unit,.chip-orange .chip-unit{color:var(--purple)}.chip-pink .chip-unit{color:var(--pink)}.chip-teal .chip-unit{color:var(--teal)}
 .chip-track{font-size:12px;font-weight:600;color:var(--text);margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chip-via{font-size:11px;color:var(--text3);margin-top:2px}
 .p-card{background:var(--card);border-radius:20px;border:1px solid var(--border);padding:16px;margin-bottom:10px}
@@ -146,6 +138,7 @@ input:focus,select:focus{outline:none;border-color:var(--purple);background:#fff
 .empty-icon{font-size:52px;margin-bottom:14px;opacity:0.4}
 .empty-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px}
 .empty-sub{font-size:13px;color:var(--text3)}
+.loading-state{text-align:center;padding:32px;color:var(--text3);font-size:13px}
 </style>
 </head>
 <body>
@@ -156,6 +149,7 @@ input:focus,select:focus{outline:none;border-color:var(--purple);background:#fff
     <div class="top-info">
       <div class="top-title">จัดซื้อจีน</div>
       <div class="top-date" id="top-date"></div>
+      <div class="sync-status sync-loading" id="sync-status"><i class="ti ti-refresh" style="font-size:10px"></i>กำลังเชื่อมต่อ...</div>
     </div>
   </div>
   <div class="notif-wrap">
@@ -164,7 +158,7 @@ input:focus,select:focus{outline:none;border-color:var(--purple);background:#fff
   </div>
 </div>
 
-<div class="content" id="main-content">
+<div class="content">
 <div class="panel on" id="panel-dash">
   <div class="hero">
     <div class="hero-deco"></div><div class="hero-deco2"></div>
@@ -290,14 +284,40 @@ input:focus,select:focus{outline:none;border-color:var(--purple);background:#fff
 </div>
 
 <script>
+const SUPA_URL='https://rimbxghsxaqfypfzvzeq.supabase.co';
+const SUPA_KEY='sb_publishable_QTo-KJu09P3rvam1Ve6HyQ_lYSp9B4w';
+const H={'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+
+async function dbGet(table,params=''){
+  const r=await fetch(`${SUPA_URL}/rest/v1/${table}?order=id.desc&${params}`,{headers:H});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function dbInsert(table,data){
+  const r=await fetch(`${SUPA_URL}/rest/v1/${table}`,{method:'POST',headers:H,body:JSON.stringify(data)});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function dbUpdate(table,id,data){
+  const r=await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`,{method:'PATCH',headers:H,body:JSON.stringify(data)});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function dbDelete(table,id){
+  const r=await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`,{method:'DELETE',headers:H});
+  if(!r.ok)throw new Error(await r.text());
+}
+
+function setSyncStatus(state,msg){
+  const el=document.getElementById('sync-status');
+  el.className='sync-status sync-'+state;
+  el.innerHTML=`<i class="ti ti-${state==='ok'?'check':state==='err'?'alert-circle':'refresh'}" style="font-size:10px"></i>${msg}`;
+}
+
 const TODAY=new Date();TODAY.setHours(0,0,0,0);
 let parcels=[],costs=[],editPid=null,editCid=null,pFilter='all';
 let calY=TODAY.getFullYear(),calM=TODAY.getMonth(),selDay=null,curTab='dash';
-try{parcels=JSON.parse(localStorage.getItem('kw-p')||'[]');}catch(e){}
-try{costs=JSON.parse(localStorage.getItem('kw-c')||'[]');}catch(e){}
-let pid=Math.max(0,...parcels.map(p=>p.id||0))+1;
-let cid=Math.max(0,...costs.map(c=>c.id||0))+1;
-const sv=()=>{try{localStorage.setItem('kw-p',JSON.stringify(parcels));localStorage.setItem('kw-c',JSON.stringify(costs));}catch(e){}};
+
 const nv=v=>parseFloat(v)||0;
 const fmt=v=>'฿'+Math.round(Number(v)).toLocaleString('th-TH');
 const fmt2=v=>'฿'+Number(v).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -306,18 +326,37 @@ const MTHF=['มกราคม','กุมภาพันธ์','มีนา�
 const DOW=['อา','จ','อ','พ','พฤ','ศ','ส'];
 const ETA_D={รถ:[7,14],เรือ:[14,20]};
 const AV=['#845EF7','#FF6B9D','#20C997','#FF922B','#339AF0','#FFD43B','#FF6B6B'];
+
 function addD(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
 function dStr(d){if(!d)return'';const dt=typeof d==='string'?new Date(d):d;return`${dt.getDate()} ${MTH[dt.getMonth()]} ${dt.getFullYear()+543}`;}
 function getETA(p){
-  if(p.dateTh&&p.dateTh!=='')return{min:new Date(p.dateTh),max:new Date(p.dateTh),actual:true};
-  if(!p.dateOut)return null;
+  if(p.date_th&&p.date_th!=='')return{min:new Date(p.date_th),max:new Date(p.date_th),actual:true};
+  if(!p.date_out)return null;
   const r=ETA_D[p.method]||[7,14];
-  return{min:addD(p.dateOut,r[0]),max:addD(p.dateOut,r[1]),actual:false};
+  return{min:addD(p.date_out,r[0]),max:addD(p.date_out,r[1]),actual:false};
 }
 function initials(nm){return(nm||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
 const d=TODAY;
 document.getElementById('top-date').textContent=`${DOW[d.getDay()]} ${d.getDate()} ${MTH[d.getMonth()]} ${d.getFullYear()+543}`;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+async function loadAll(){
+  try{
+    setSyncStatus('loading','กำลังโหลด...');
+    [parcels,costs]=await Promise.all([dbGet('parcels'),dbGet('costs')]);
+    setSyncStatus('ok','ซิงค์แล้ว');
+    fillDL();
+    if(curTab==='dash')renderDash();
+    if(curTab==='parcel')renderParcels();
+    if(curTab==='cost')renderCosts();
+    if(curTab==='sum')renderSum();
+    if(curTab==='cal')renderCal();
+  }catch(e){
+    setSyncStatus('err','เชื่อมต่อไม่ได้');
+    console.error(e);
+  }
+}
+
 function goTab(name,btn){
   curTab=name;
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
@@ -333,6 +372,7 @@ function goTab(name,btn){
 }
 function openSheet(){fillDL();if(curTab==='parcel'){editPid=null;resetPS();document.getElementById('sheet-parcel').classList.add('on');}if(curTab==='cost'){editCid=null;resetCS();document.getElementById('sheet-cost').classList.add('on');}}
 function closeSheet(n){document.getElementById('sheet-'+n).classList.remove('on');}
+
 function renderDash(){
   const transit=parcels.filter(p=>p.status==='ออกโกดังจีน รอเข้าไทย');
   const tSell=costs.reduce((s,c)=>s+nv(c.sell),0),tP=costs.reduce((s,c)=>s+nv(c.profit),0);
@@ -354,7 +394,8 @@ function renderDash(){
   const top3=Object.entries(byC2).sort((a,b)=>b[1].sell-a[1].sell).slice(0,3);
   document.getElementById('dash-top3').innerHTML=top3.length?top3.map(([nm,d])=>`<div class="sum-card"><div style="display:flex;align-items:center;gap:10px"><div class="sum-av" style="background:${AV[d.i%AV.length]}">${initials(nm)}</div><div><div class="sum-nm">${nm}</div><div class="sum-ct">${d.n} ออเดอร์</div></div></div><div style="text-align:right"><div class="sum-profit" style="color:${d.profit>=0?'var(--teal)':'var(--red)'}">${fmt(d.profit)}</div><div class="sum-sell">${fmt(d.sell)}</div></div></div>`).join(''):'<div style="color:var(--text3);font-size:13px;padding:8px 0">ยังไม่มีข้อมูลต้นทุน</div>';
 }
-function buildEv(){const ev={};const add=(ds,e)=>{if(!ds)return;const k=(typeof ds==='string'?ds:ds.toISOString()).slice(0,10);if(!ev[k])ev[k]=[];ev[k].push(e);};parcels.forEach(p=>{if(p.dateOut)add(p.dateOut,{type:'out',tracking:p.tracking,customer:p.customer});if(p.dateTh)add(p.dateTh,{type:'arrive',tracking:p.tracking,customer:p.customer});else if(p.dateOut){const e=getETA(p);if(e)add(e.min.toISOString(),{type:'est',tracking:p.tracking,method:p.method,customer:p.customer});}});return ev;}
+
+function buildEv(){const ev={};const add=(ds,e)=>{if(!ds)return;const k=(typeof ds==='string'?ds:ds.toISOString()).slice(0,10);if(!ev[k])ev[k]=[];ev[k].push(e);};parcels.forEach(p=>{if(p.date_out)add(p.date_out,{type:'out',tracking:p.tracking,customer:p.customer});if(p.date_th)add(p.date_th,{type:'arrive',tracking:p.tracking,customer:p.customer});else if(p.date_out){const e=getETA(p);if(e)add(e.min.toISOString(),{type:'est',tracking:p.tracking,method:p.method,customer:p.customer});}});return ev;}
 function renderCal(){
   const ev=buildEv();
   document.getElementById('cal-title').textContent=`${MTHF[calM]} ${calY+543}`;
@@ -371,26 +412,67 @@ function calMove(d){calM+=d;if(calM>11){calM=0;calY++;}if(calM<0){calM=11;calY--
 function selCal(k){selDay=k;renderCal();}
 function renderCalDetail(k,ev){const evs=(ev||buildEv())[k]||[];const el=document.getElementById('cal-detail');if(!evs.length){el.innerHTML=`<div style="color:var(--text3);font-size:13px">${dStr(k)} — ไม่มีรายการ</div>`;return;}el.innerHTML=`<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">${dStr(k)}</div>`+evs.map(e=>{const cls=e.type==='arrive'?'ev-a':e.type==='est'?'ev-e':'ev-o';const icon=e.type==='arrive'?'ti-circle-check':e.type==='est'?'ti-clock':'ti-arrow-right';const lbl=e.type==='arrive'?'ถึงไทยแล้ว':e.type==='est'?`คาดการณ์ (${e.method||''})`:' ออกโกดัง';return`<div class="cal-ev"><div class="cal-ev-icon ${cls}"><i class="ti ${icon}"></i></div><div><div style="font-size:13px;font-weight:600">${e.tracking}</div><div style="font-size:12px;color:var(--text2);margin-top:2px">${lbl}${e.customer?' · '+e.customer:''}</div></div></div>`;}).join('');}
 function renderComingAll(ev){const now=TODAY.getTime();const fut=Object.entries(ev).filter(([k,evs])=>new Date(k).getTime()>=now&&evs.some(e=>e.type==='est'||e.type==='arrive')).sort((a,b)=>new Date(a[0])-new Date(b[0])).slice(0,8);const el=document.getElementById('coming-all');if(!fut.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:8px 0">ไม่มีรายการที่จะมาถึง</div>';return;}el.innerHTML=fut.map(([k,evs])=>{const diff=Math.ceil((new Date(k)-TODAY)/86400000);const rel=diff===0?'วันนี้':diff===1?'พรุ่งนี้':`อีก ${diff} วัน`;const items=evs.filter(e=>e.type==='est'||e.type==='arrive');const isSoon=diff<=2;return`<div class="p-card"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600">${items.map(e=>e.tracking).join(', ')}</div><div style="font-size:12px;color:var(--text2);margin-top:2px">${dStr(k)} · ${items[0]?.type==='arrive'?'ถึงจริง':'คาดการณ์'}</div></div><div class="pill ${isSoon?'pill-ship':'pill-soon'}">${rel}</div></div></div>`;}).join('');}
+
 const sPill=s=>({'ออกโกดังจีน รอเข้าไทย':'pill-ship','ถึงไทยแล้ว':'pill-arrive','รับของแล้ว':'pill-done'})[s]||'pill-wait';
 function setPF(f,btn){pFilter=f;document.querySelectorAll('.filters .fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderParcels();}
-function renderParcels(){const list=pFilter==='all'?parcels:parcels.filter(p=>p.status===pFilter);const el=document.getElementById('parcel-list');if(!list.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">ยังไม่มีพัสดุ</div><div class="empty-sub">กดปุ่ม + เพื่อเพิ่มรายการแรก</div></div>`;return;}el.innerHTML=list.map(p=>{const eta=getETA(p);let etaHtml='';if(eta){if(eta.actual)etaHtml=`<div class="eta-box eta-ok"><i class="ti ti-circle-check"></i><span>ถึงไทยแล้ว ${dStr(p.dateTh)}</span></div>`;else etaHtml=`<div class="eta-box eta-ship"><i class="ti ti-clock"></i><span>คาด ${dStr(eta.min)} – ${dStr(eta.max)}</span></div>`;}return`<div class="p-card"><div class="p-hd"><div><div class="p-track">${p.tracking}</div><div class="p-lot">${p.lot||'—'}</div></div><div class="pill ${sPill(p.status)}">${p.status}</div></div><div class="p-tags">${p.customer?`<div class="tag"><i class="ti ti-user"></i>${p.customer}</div>`:''}<div class="tag"><i class="ti ti-${p.method==='เรือ'?'ship':'truck'}"></i>${p.method==='เรือ'?'เรือ':'รถ'}</div>${p.shipAe?`<div class="tag">${fmt2(p.shipAe)}</div>`:''}</div>${etaHtml}<div class="act-row"><button class="act-btn" onclick="editParcel(${p.id})"><i class="ti ti-edit"></i>แก้ไข</button><button class="act-btn act-del" onclick="delParcel(${p.id})"><i class="ti ti-trash"></i>ลบ</button></div></div>`;}).join('');}
+function renderParcels(){const list=pFilter==='all'?parcels:parcels.filter(p=>p.status===pFilter);const el=document.getElementById('parcel-list');if(!list.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">ยังไม่มีพัสดุ</div><div class="empty-sub">กดปุ่ม + เพื่อเพิ่มรายการแรก</div></div>`;return;}el.innerHTML=list.map(p=>{const eta=getETA(p);let etaHtml='';if(eta){if(eta.actual)etaHtml=`<div class="eta-box eta-ok"><i class="ti ti-circle-check"></i><span>ถึงไทยแล้ว ${dStr(p.date_th)}</span></div>`;else etaHtml=`<div class="eta-box eta-ship"><i class="ti ti-clock"></i><span>คาด ${dStr(eta.min)} – ${dStr(eta.max)}</span></div>`;}return`<div class="p-card"><div class="p-hd"><div><div class="p-track">${p.tracking}</div><div class="p-lot">${p.lot||'—'}</div></div><div class="pill ${sPill(p.status)}">${p.status}</div></div><div class="p-tags">${p.customer?`<div class="tag"><i class="ti ti-user"></i>${p.customer}</div>`:''}<div class="tag"><i class="ti ti-${p.method==='เรือ'?'ship':'truck'}"></i>${p.method==='เรือ'?'เรือ':'รถ'}</div>${p.ship_ae?`<div class="tag">${fmt2(p.ship_ae)}</div>`:''}</div>${etaHtml}<div class="act-row"><button class="act-btn" onclick="editParcel(${p.id})"><i class="ti ti-edit"></i>แก้ไข</button><button class="act-btn act-del" onclick="delParcel(${p.id})"><i class="ti ti-trash"></i>ลบ</button></div></div>`;}).join('');}
+
 function upETA(){const m=document.getElementById('sp-method').value,dout=document.getElementById('sp-dateout').value;const h=document.getElementById('eta-hint');if(!dout){h.style.display='none';return;}const r=ETA_D[m]||[7,14];const base=new Date(dout);document.getElementById('eta-txt').textContent=`คาดถึงไทย: ${dStr(addD(base,r[0]))} ถึง ${dStr(addD(base,r[1]))}`;h.style.display='flex';}
 function resetPS(){['sp-tracking','sp-customer','sp-lot','sp-dateout','sp-dateth','sp-kg','sp-ship','sp-note'].forEach(id=>document.getElementById(id).value='');document.getElementById('sp-status').value='ยังไม่เข้าโกดัง';document.getElementById('sp-method').value='รถ';document.getElementById('eta-hint').style.display='none';document.getElementById('sp-title').textContent='เพิ่มพัสดุ';document.getElementById('sp-save').textContent='บันทึก';document.getElementById('sp-et').style.display='none';}
-function saveParcel(){const t=document.getElementById('sp-tracking').value.trim();if(!t){document.getElementById('sp-et').style.display='block';return;}document.getElementById('sp-et').style.display='none';const p={id:editPid||pid++,tracking:t,customer:document.getElementById('sp-customer').value.trim(),lot:document.getElementById('sp-lot').value.trim(),status:document.getElementById('sp-status').value,method:document.getElementById('sp-method').value,dateOut:document.getElementById('sp-dateout').value,dateTh:document.getElementById('sp-dateth').value,kg:parseFloat(document.getElementById('sp-kg').value)||0,shipAe:parseFloat(document.getElementById('sp-ship').value)||0,note:document.getElementById('sp-note').value.trim()};if(editPid){const i=parcels.findIndex(x=>x.id===editPid);parcels[i]=p;}else parcels.unshift(p);sv();closeSheet('parcel');renderParcels();fillDL();editPid=null;toast('บันทึกพัสดุแล้ว');}
-function editParcel(id){const p=parcels.find(x=>x.id===id);if(!p)return;editPid=id;resetPS();fillDL();document.getElementById('sp-tracking').value=p.tracking||'';document.getElementById('sp-customer').value=p.customer||'';document.getElementById('sp-lot').value=p.lot||'';document.getElementById('sp-status').value=p.status||'ยังไม่เข้าโกดัง';document.getElementById('sp-method').value=p.method||'รถ';document.getElementById('sp-dateout').value=p.dateOut||'';document.getElementById('sp-dateth').value=p.dateTh||'';document.getElementById('sp-kg').value=p.kg||'';document.getElementById('sp-ship').value=p.shipAe||'';document.getElementById('sp-note').value=p.note||'';document.getElementById('sp-title').textContent='แก้ไขพัสดุ';document.getElementById('sp-save').textContent='อัพเดท';upETA();document.getElementById('sheet-parcel').classList.add('on');}
-function delParcel(id){if(!confirm('ลบรายการนี้?'))return;parcels=parcels.filter(p=>p.id!==id);sv();renderParcels();toast('ลบแล้ว');}
-function renderCosts(){const el=document.getElementById('cost-list');if(!costs.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-title">ยังไม่มีต้นทุน</div><div class="empty-sub">กดปุ่ม + เพื่อกรอกข้อมูล</div></div>`;return;}el.innerHTML=costs.map(c=>`<div class="cost-card"><div class="cc-hd"><div><div class="cc-product">${c.product}</div><div class="cc-track">${c.tracking}${c.customer?' · '+c.customer:''}</div></div><div class="pill ${c.profit>=0?'pill-profit':'pill-loss'}">${fmt(c.profit)}</div></div><div class="cc-nums"><div class="cc-num cn-cost"><div class="cn-lbl">ต้นทุน</div><div class="cn-val">${fmt(c.costTotal)}</div></div><div class="cc-num cn-ship"><div class="cn-lbl">ค่าส่ง</div><div class="cn-val">${fmt(c.shipTotal)}</div></div><div class="cc-num cn-sell"><div class="cn-lbl">ราคาขาย</div><div class="cn-val">${fmt(c.sell)}</div></div></div><div class="act-row" style="margin-top:12px"><button class="act-btn" onclick="editCost(${c.id})"><i class="ti ti-edit"></i>แก้ไข</button><button class="act-btn act-del" onclick="delCost(${c.id})"><i class="ti ti-trash"></i>ลบ</button></div></div>`).join('');}
-function linkP(){const t=document.getElementById('sc-tracking').value.trim();const p=parcels.find(x=>x.tracking===t);const lk=document.getElementById('sc-linked');if(p){if(p.shipAe)document.getElementById('sc-ae').value=p.shipAe;if(p.customer&&!document.getElementById('sc-customer').value)document.getElementById('sc-customer').value=p.customer;lk.style.display='flex';}else lk.style.display='none';calcC();}
+
+async function saveParcel(){
+  const t=document.getElementById('sp-tracking').value.trim();
+  if(!t){document.getElementById('sp-et').style.display='block';return;}
+  document.getElementById('sp-et').style.display='none';
+  const data={tracking:t,customer:document.getElementById('sp-customer').value.trim()||null,lot:document.getElementById('sp-lot').value.trim()||null,status:document.getElementById('sp-status').value,method:document.getElementById('sp-method').value,date_out:document.getElementById('sp-dateout').value||null,date_th:document.getElementById('sp-dateth').value||null,kg:parseFloat(document.getElementById('sp-kg').value)||null,ship_ae:parseFloat(document.getElementById('sp-ship').value)||0,note:document.getElementById('sp-note').value.trim()||null};
+  try{
+    setSyncStatus('loading','กำลังบันทึก...');
+    if(editPid){await dbUpdate('parcels',editPid,data);}else{await dbInsert('parcels',data);}
+    await loadAll();
+    closeSheet('parcel');editPid=null;toast('บันทึกพัสดุแล้ว');
+  }catch(e){setSyncStatus('err','บันทึกไม่สำเร็จ');toast('เกิดข้อผิดพลาด');}
+}
+
+function editParcel(id){const p=parcels.find(x=>x.id===id);if(!p)return;editPid=id;resetPS();fillDL();document.getElementById('sp-tracking').value=p.tracking||'';document.getElementById('sp-customer').value=p.customer||'';document.getElementById('sp-lot').value=p.lot||'';document.getElementById('sp-status').value=p.status||'ยังไม่เข้าโกดัง';document.getElementById('sp-method').value=p.method||'รถ';document.getElementById('sp-dateout').value=p.date_out||'';document.getElementById('sp-dateth').value=p.date_th||'';document.getElementById('sp-kg').value=p.kg||'';document.getElementById('sp-ship').value=p.ship_ae||'';document.getElementById('sp-note').value=p.note||'';document.getElementById('sp-title').textContent='แก้ไขพัสดุ';document.getElementById('sp-save').textContent='อัพเดท';upETA();document.getElementById('sheet-parcel').classList.add('on');}
+
+async function delParcel(id){if(!confirm('ลบรายการนี้?'))return;try{setSyncStatus('loading','กำลังลบ...');await dbDelete('parcels',id);await loadAll();toast('ลบแล้ว');}catch(e){setSyncStatus('err','ลบไม่สำเร็จ');}}
+
+function renderCosts(){const el=document.getElementById('cost-list');if(!costs.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-title">ยังไม่มีต้นทุน</div><div class="empty-sub">กดปุ่ม + เพื่อกรอกข้อมูล</div></div>`;return;}el.innerHTML=costs.map(c=>`<div class="cost-card"><div class="cc-hd"><div><div class="cc-product">${c.product}</div><div class="cc-track">${c.tracking}${c.customer?' · '+c.customer:''}</div></div><div class="pill ${c.profit>=0?'pill-profit':'pill-loss'}">${fmt(c.profit)}</div></div><div class="cc-nums"><div class="cc-num cn-cost"><div class="cn-lbl">ต้นทุน</div><div class="cn-val">${fmt(c.cost_total)}</div></div><div class="cc-num cn-ship"><div class="cn-lbl">ค่าส่ง</div><div class="cn-val">${fmt(c.ship_total)}</div></div><div class="cc-num cn-sell"><div class="cn-lbl">ราคาขาย</div><div class="cn-val">${fmt(c.sell)}</div></div></div><div class="act-row" style="margin-top:12px"><button class="act-btn" onclick="editCost(${c.id})"><i class="ti ti-edit"></i>แก้ไข</button><button class="act-btn act-del" onclick="delCost(${c.id})"><i class="ti ti-trash"></i>ลบ</button></div></div>`).join('');}
+
+function linkP(){const t=document.getElementById('sc-tracking').value.trim();const p=parcels.find(x=>x.tracking===t);const lk=document.getElementById('sc-linked');if(p){if(p.ship_ae)document.getElementById('sc-ae').value=p.ship_ae;if(p.customer&&!document.getElementById('sc-customer').value)document.getElementById('sc-customer').value=p.customer;lk.style.display='flex';}else lk.style.display='none';calcC();}
 function calcC(){const cost=nv(document.getElementById('sc-c05').value)+nv(document.getElementById('sc-c1').value);const ship=nv(document.getElementById('sc-ae').value)+nv(document.getElementById('sc-fac').value);const sell=nv(document.getElementById('sc-sell').value);const profit=sell-cost-ship;document.getElementById('cc-cost').textContent=fmt2(cost+ship);document.getElementById('cc-sell').textContent=fmt2(sell);document.getElementById('cc-profit').textContent=fmt2(profit);document.getElementById('cc-box').className='cs '+(profit>=0?'cs-p':'cs-pn');}
 function resetCS(){['sc-tracking','sc-customer','sc-product','sc-c05','sc-c1','sc-ae','sc-fac','sc-sell'].forEach(id=>document.getElementById(id).value='');document.getElementById('sc-linked').style.display='none';['sc-et','sc-ec','sc-ep'].forEach(id=>document.getElementById(id).style.display='none');document.getElementById('sc-title').textContent='กรอกต้นทุน';document.getElementById('sc-save').textContent='บันทึก';['cc-cost','cc-sell','cc-profit'].forEach(id=>document.getElementById(id).textContent='฿0');document.getElementById('cc-box').className='cs cs-p';}
-function saveCost(){const t=document.getElementById('sc-tracking').value.trim(),cu=document.getElementById('sc-customer').value.trim(),pr=document.getElementById('sc-product').value.trim();let ok=true;if(!t){document.getElementById('sc-et').style.display='block';ok=false;}else document.getElementById('sc-et').style.display='none';if(!cu){document.getElementById('sc-ec').style.display='block';ok=false;}else document.getElementById('sc-ec').style.display='none';if(!pr){document.getElementById('sc-ep').style.display='block';ok=false;}else document.getElementById('sc-ep').style.display='none';if(!ok)return;const c05=nv(document.getElementById('sc-c05').value),c1=nv(document.getElementById('sc-c1').value);const ae=nv(document.getElementById('sc-ae').value),fac=nv(document.getElementById('sc-fac').value);const sell=nv(document.getElementById('sc-sell').value);const costTotal=c05+c1,shipTotal=ae+fac,profit=sell-costTotal-shipTotal;const obj={id:editCid||cid++,tracking:t,customer:cu,product:pr,cost05:c05,cost1:c1,costTotal,shipAe:ae,shipFac:fac,shipTotal,sell,profit};if(editCid){const i=costs.findIndex(x=>x.id===editCid);costs[i]=obj;}else costs.unshift(obj);sv();closeSheet('cost');renderCosts();editCid=null;toast('บันทึกต้นทุนแล้ว');}
-function editCost(id){const c=costs.find(x=>x.id===id);if(!c)return;editCid=id;resetCS();fillDL();document.getElementById('sc-tracking').value=c.tracking||'';document.getElementById('sc-customer').value=c.customer||'';document.getElementById('sc-product').value=c.product||'';document.getElementById('sc-c05').value=c.cost05||'';document.getElementById('sc-c1').value=c.cost1||'';document.getElementById('sc-ae').value=c.shipAe||'';document.getElementById('sc-fac').value=c.shipFac||'';document.getElementById('sc-sell').value=c.sell||'';document.getElementById('sc-title').textContent='แก้ไขต้นทุน';document.getElementById('sc-save').textContent='อัพเดท';calcC();document.getElementById('sheet-cost').classList.add('on');}
-function delCost(id){if(!confirm('ลบ?'))return;costs=costs.filter(c=>c.id!==id);sv();renderCosts();toast('ลบแล้ว');}
+
+async function saveCost(){
+  const t=document.getElementById('sc-tracking').value.trim(),cu=document.getElementById('sc-customer').value.trim(),pr=document.getElementById('sc-product').value.trim();
+  let ok=true;
+  if(!t){document.getElementById('sc-et').style.display='block';ok=false;}else document.getElementById('sc-et').style.display='none';
+  if(!cu){document.getElementById('sc-ec').style.display='block';ok=false;}else document.getElementById('sc-ec').style.display='none';
+  if(!pr){document.getElementById('sc-ep').style.display='block';ok=false;}else document.getElementById('sc-ep').style.display='none';
+  if(!ok)return;
+  const c05=nv(document.getElementById('sc-c05').value),c1=nv(document.getElementById('sc-c1').value);
+  const ae=nv(document.getElementById('sc-ae').value),fac=nv(document.getElementById('sc-fac').value);
+  const sell=nv(document.getElementById('sc-sell').value);
+  const cost_total=c05+c1,ship_total=ae+fac,profit=sell-cost_total-ship_total;
+  const data={tracking:t,customer:cu,product:pr,cost05:c05,cost1:c1,cost_total,ship_ae:ae,ship_fac:fac,ship_total,sell,profit};
+  try{
+    setSyncStatus('loading','กำลังบันทึก...');
+    if(editCid){await dbUpdate('costs',editCid,data);}else{await dbInsert('costs',data);}
+    await loadAll();closeSheet('cost');editCid=null;toast('บันทึกต้นทุนแล้ว');
+  }catch(e){setSyncStatus('err','บันทึกไม่สำเร็จ');toast('เกิดข้อผิดพลาด');}
+}
+
+function editCost(id){const c=costs.find(x=>x.id===id);if(!c)return;editCid=id;resetCS();fillDL();document.getElementById('sc-tracking').value=c.tracking||'';document.getElementById('sc-customer').value=c.customer||'';document.getElementById('sc-product').value=c.product||'';document.getElementById('sc-c05').value=c.cost05||'';document.getElementById('sc-c1').value=c.cost1||'';document.getElementById('sc-ae').value=c.ship_ae||'';document.getElementById('sc-fac').value=c.ship_fac||'';document.getElementById('sc-sell').value=c.sell||'';document.getElementById('sc-title').textContent='แก้ไขต้นทุน';document.getElementById('sc-save').textContent='อัพเดท';calcC();document.getElementById('sheet-cost').classList.add('on');}
+async function delCost(id){if(!confirm('ลบ?'))return;try{setSyncStatus('loading','กำลังลบ...');await dbDelete('costs',id);await loadAll();toast('ลบแล้ว');}catch(e){setSyncStatus('err','ลบไม่สำเร็จ');}}
+
 function renderSum(){const tSell=costs.reduce((s,c)=>s+nv(c.sell),0),tP=costs.reduce((s,c)=>s+nv(c.profit),0);document.getElementById('sh-profit').textContent=tSell>0?fmt(tP):'-';document.getElementById('sh-sell').textContent=tSell>0?fmt(tSell):'-';const byC={};let idx=0;costs.forEach(c=>{if(!byC[c.customer]){byC[c.customer]={n:0,sell:0,profit:0,i:idx++};}byC[c.customer].n++;byC[c.customer].sell+=nv(c.sell);byC[c.customer].profit+=nv(c.profit);});const sorted=Object.entries(byC).sort((a,b)=>b[1].sell-a[1].sell);const el=document.getElementById('sum-list');if(!sorted.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">ยังไม่มีข้อมูล</div><div class="empty-sub">บันทึกต้นทุนในแท็บ "ต้นทุน" ก่อน</div></div>`;return;}el.innerHTML=sorted.map(([nm,d])=>`<div class="sum-card"><div style="display:flex;align-items:center;gap:10px"><div class="sum-av" style="background:${AV[d.i%AV.length]}">${initials(nm)}</div><div><div class="sum-nm">${nm}</div><div class="sum-ct">${d.n} ออเดอร์</div></div></div><div style="text-align:right"><div class="sum-profit" style="color:${d.profit>=0?'var(--teal)':'var(--red)'}">${fmt(d.profit)}</div><div class="sum-sell">${d.sell>0?(d.profit/d.sell*100).toFixed(1)+'% · ':''} ${fmt(d.sell)}</div></div></div>`).join('');}
+
 function fillDL(){const tr=parcels.map(p=>p.tracking).filter(Boolean);const cu=[...new Set([...parcels.map(p=>p.customer),...costs.map(c=>c.customer)].filter(Boolean))];document.getElementById('sc-tracks').innerHTML=tr.map(t=>`<option value="${t}">`).join('');['sc-custs','sp-custs'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=cu.map(c=>`<option value="${c}">`).join('');});}
-function exportCSV(){if(!costs.length){toast('ยังไม่มีข้อมูล');return;}const h=['เลขพัสดุ','สินค้า','ลูกค้า','ต้นทุน','ค่าส่ง','ราคาขาย','กำไร'];const r=costs.map(c=>[c.tracking,c.product,c.customer,c.costTotal,c.shipTotal,c.sell,c.profit.toFixed(2)].map(v=>`"${v||''}"`).join(','));const blob=new Blob(['\ufeff'+[h.join(','),...r].join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='จัดซื้อจีน.csv';a.click();}
+function exportCSV(){if(!costs.length){toast('ยังไม่มีข้อมูล');return;}const h=['เลขพัสดุ','สินค้า','ลูกค้า','ต้นทุน','ค่าส่ง','ราคาขาย','กำไร'];const r=costs.map(c=>[c.tracking,c.product,c.customer,c.cost_total,c.ship_total,c.sell,Number(c.profit).toFixed(2)].map(v=>`"${v||''}"`).join(','));const blob=new Blob(['\ufeff'+[h.join(','),...r].join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='จัดซื้อจีน.csv';a.click();}
+
 document.querySelectorAll('.sheet-wrap').forEach(sw=>{sw.addEventListener('click',e=>{if(e.target===sw)sw.classList.remove('on');});});
-renderDash();fillDL();
+loadAll();
+setInterval(loadAll, 30000);
 </script>
 </body>
 </html>
