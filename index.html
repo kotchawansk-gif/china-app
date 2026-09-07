@@ -635,7 +635,20 @@ function renderParcels(){
   if(pPage>totalPages)pPage=totalPages;
   const start=(pPage-1)*PAGE_SIZE;
   const pageList=list.slice(start,start+PAGE_SIZE);
-  el.innerHTML=pageList.map(p=>{
+  const pgBar=()=>{
+    if(totalPages<=1)return'';
+    let pg='<div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 0">';
+    pg+=`<button onclick="pPage=Math.max(1,pPage-1);renderParcels()" ${pPage===1?'disabled':''} style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text2);opacity:${pPage===1?'0.3':'1'}">‹</button>`;
+    let pages=[];
+    if(totalPages<=5){for(let i=1;i<=totalPages;i++)pages.push(i);}
+    else{pages=[1];if(pPage>3)pages.push('...');for(let i=Math.max(2,pPage-1);i<=Math.min(totalPages-1,pPage+1);i++)pages.push(i);if(pPage<totalPages-2)pages.push('...');pages.push(totalPages);}
+    pages.forEach(p=>{if(p==='...'){pg+=`<span style="font-size:12px;color:var(--text3)">···</span>`;}else{pg+=`<button onclick="pPage=${p};renderParcels()" style="width:32px;height:32px;border-radius:50%;border:${p===pPage?'none':'1px solid var(--border)'};background:${p===pPage?'var(--br)':'var(--card)'};color:${p===pPage?'#fff':'var(--text2)'};cursor:pointer;font-size:12px;font-weight:700">${p}</button>`;}});
+    pg+=`<button onclick="pPage=Math.min(totalPages,pPage+1);renderParcels()" ${pPage===totalPages?'disabled':''} style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text2);opacity:${pPage===totalPages?'0.3':'1'}">›</button>`;
+    pg+=`<span style="font-size:10px;color:var(--text3);margin-left:4px">${start+1}–${Math.min(start+PAGE_SIZE,list.length)} / ${list.length}</span>`;
+    pg+='</div>';
+    return pg;
+  };
+  el.innerHTML=pgBar()+pageList.map(p=>{
     const eta=getETA(p);let etaHtml='';
     if(eta){if(eta.actual)etaHtml=`<div class="eta-bar eta-bar-ok">✅ ถึงไทยแล้ว ${dStr(p.date_th)}</div>`;else etaHtml=`<div class="eta-bar eta-bar-ship">🕐 คาด ${dStr(eta.min)} – ${dStr(eta.max)}</div>`;}
     const c=costs.find(x=>x.tracking===p.tracking);
@@ -650,30 +663,7 @@ function renderParcels(){
     </div></div>`;
   }).join('');
   pageList.forEach(p=>{const c=document.getElementById('card-'+p.id);if(c)initSwipe(c);});
-
-  // Pagination bar
-  if(totalPages>1){
-    let pg='<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;padding-bottom:4px">';
-    pg+=`<button onclick="pPage=Math.max(1,pPage-1);renderParcels()" ${pPage===1?'disabled':''} style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text2);opacity:${pPage===1?'0.3':'1'}">‹</button>`;
-    // หน้าที่แสดง
-    let pages=[];
-    if(totalPages<=5){for(let i=1;i<=totalPages;i++)pages.push(i);}
-    else{
-      pages=[1];
-      if(pPage>3)pages.push('...');
-      for(let i=Math.max(2,pPage-1);i<=Math.min(totalPages-1,pPage+1);i++)pages.push(i);
-      if(pPage<totalPages-2)pages.push('...');
-      pages.push(totalPages);
-    }
-    pages.forEach(p=>{
-      if(p==='...'){pg+=`<span style="font-size:12px;color:var(--text3)">···</span>`;}
-      else{pg+=`<button onclick="pPage=${p};renderParcels()" style="width:32px;height:32px;border-radius:50%;border:${p===pPage?'none':'1px solid var(--border)'};background:${p===pPage?'var(--br)':'var(--card)'};color:${p===pPage?'#fff':'var(--text2)'};cursor:pointer;font-size:12px;font-weight:700">${p}</button>`;}
-    });
-    pg+=`<button onclick="pPage=Math.min(totalPages,pPage+1);renderParcels()" ${pPage===totalPages?'disabled':''} style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text2);opacity:${pPage===totalPages?'0.3':'1'}">›</button>`;
-    pg+=`<span style="font-size:10px;color:var(--text3);margin-left:4px">${start+1}–${Math.min(start+PAGE_SIZE,list.length)} / ${list.length}</span>`;
-    pg+='</div>';
-    el.innerHTML+=pg;
-  }
+  el.innerHTML+=pgBar();
 }
 
 function editParcel(id){
