@@ -357,13 +357,13 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
       <div class="sec-sep">💰 ต้นทุนค่าของ</div>
       <div class="fl"><label class="flbl">ราคาของ 0.5 (฿)</label><input type="number" id="sc-c05" placeholder="0" oninput="calcC()"></div>
       <div class="fl"><label class="flbl">ราคาของ 1 (฿)</label><input type="number" id="sc-c1" placeholder="0" oninput="calcC()"></div>
-      <div class="sec-sep">🚢 ค่าขนส่ง</div>
-      <div class="fl"><label class="flbl">ค่าส่ง AreeExpress (฿)</label><input type="number" id="sc-ae" placeholder="ดึงอัตโนมัติ" oninput="calcC()"></div>
-      <div class="fl"><label class="flbl">ค่าส่งถึงโรงงาน (฿)</label><input type="number" id="sc-fac" placeholder="0" oninput="calcC()"></div>
+      <div class="sec-sep">🚢 ค่าขนส่ง (2 ขา)</div>
+      <div class="fl"><label class="flbl">🇨🇳 จีน → ไทย (AreeExpress) (฿)</label><input type="number" id="sc-ae" placeholder="0" oninput="calcC()"></div>
+      <div class="fl"><label class="flbl">🚗 ไทย → บริษัท (฿)</label><input type="number" id="sc-fac" placeholder="0" oninput="calcC()"></div>
       <div class="calc-strip">
         <div class="cs cs-qty2"><div class="csl">🔢 ชิ้น</div><div class="csv" id="cc-qty">0</div></div>
         <div class="cs cs-c"><div class="csl">💰 ต้นทุน</div><div class="csv" id="cc-cost">฿0</div></div>
-        <div class="cs cs-s"><div class="csl">🚢 ค่าส่ง</div><div class="csv" id="cc-ship">฿0</div></div>
+        <div class="cs cs-s"><div class="csl">🚢+🚗 ค่าส่งรวม</div><div class="csv" id="cc-ship">฿0</div></div>
       </div>
       <button class="btn-main" id="sm-save" onclick="saveBoth()">✅ บันทึกทั้งหมด</button>
       <div class="skip-link" onclick="saveParcelOnly()">⏭️ <span>บันทึกแค่พัสดุ ไม่กรอกต้นทุน</span></div>
@@ -625,7 +625,11 @@ function renderParcels(){
       costHtml=`<div class="cost-summary">
         <div class="cs-box cs-qty"><div class="cs-lbl">🔢 ชิ้น</div><div class="cs-val">${hasCost.qty||p.qty||'-'}</div></div>
         <div class="cs-box cs-cost"><div class="cs-lbl">💰 ต้นทุน</div><div class="cs-val">${fmt(hasCost.cost_total)}</div></div>
-        <div class="cs-box cs-ship"><div class="cs-lbl">🚢 ค่าส่ง</div><div class="cs-val">${fmt(hasCost.ship_total)}</div></div>
+        <div class="cs-box cs-ship"><div class="cs-lbl">🇨🇳→🇹🇭</div><div class="cs-val">${fmt(hasCost.ship_ae)}</div></div>
+      </div>
+      <div class="cost-summary" style="margin-top:6px">
+        <div class="cs-box cs-ship" style="grid-column:span 2"><div class="cs-lbl">🚗 ไทย→บริษัท</div><div class="cs-val">${fmt(hasCost.ship_fac)}</div></div>
+        <div class="cs-box cs-cost"><div class="cs-lbl">📦 รวมส่ง</div><div class="cs-val">${fmt(hasCost.ship_total)}</div></div>
       </div>`;
     }
     return`<div class="card-wrap">
@@ -706,7 +710,7 @@ function renderSum(){
   document.getElementById('sh-cost').textContent=tCost>0?fmt(tCost):'-';
   document.getElementById('sh-ship').textContent=tShip>0?fmt(tShip):'-';
   const byC={};let idx=0;
-  costs.forEach(c=>{if(!byC[c.customer]){byC[c.customer]={n:0,qty:0,cost:0,ship:0,i:idx++};}byC[c.customer].n++;byC[c.customer].qty+=nv(c.qty);byC[c.customer].cost+=nv(c.cost_total);byC[c.customer].ship+=nv(c.ship_total);});
+  costs.forEach(c=>{if(!byC[c.customer]){byC[c.customer]={n:0,qty:0,cost:0,ship:0,ae:0,fac:0,i:idx++};}byC[c.customer].n++;byC[c.customer].qty+=nv(c.qty);byC[c.customer].cost+=nv(c.cost_total);byC[c.customer].ship+=nv(c.ship_total);byC[c.customer].ae+=nv(c.ship_ae);byC[c.customer].fac+=nv(c.ship_fac);});
   // Also pull from parcels for customers without costs
   parcels.forEach(p=>{if(p.customer&&!byC[p.customer]&&!costs.find(c=>c.customer===p.customer)){byC[p.customer]={n:0,qty:0,cost:0,ship:0,i:idx++};}if(p.customer&&byC[p.customer])byC[p.customer].n=Math.max(byC[p.customer].n,parcels.filter(x=>x.customer===p.customer).length);});
   const sorted=Object.entries(byC).sort((a,b)=>b[1].cost-a[1].cost);
@@ -719,7 +723,7 @@ function renderSum(){
     </div>
     <div style="text-align:right">
       <div class="sum-cost">${d.cost>0?fmt(d.cost+d.ship):'-'}</div>
-      <div class="sum-sub">${d.cost>0?`ของ ${fmt(d.cost)} · ส่ง ${fmt(d.ship)}`:'ยังไม่กรอกต้นทุน'}</div>
+      <div class="sum-sub">${d.cost>0?`ของ ${fmt(d.cost)} · 🇨🇳→🇹🇭 ${fmt(d.ae)} · 🚗 ${fmt(d.fac)}`:'ยังไม่กรอกต้นทุน'}</div>
     </div>
   </div>`).join('');
 }
