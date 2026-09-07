@@ -265,13 +265,14 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
 </div>
 </div>
 
-<button class="fab" id="fab" onclick="openSheet()">＋</button>
-
-<div class="bottom-nav">
+<div style="position:relative;flex-shrink:0">
+  <button class="fab" id="fab" onclick="openSheet()">＋</button>
+  <div class="bottom-nav">
   <button class="nb on" id="nb-0" onclick="navTo('dash',0)"><i class="ti ti-home"></i><div class="nb-bar"></div>หน้าหลัก</button>
   <button class="nb" id="nb-1" onclick="navTo('cal',1)"><i class="ti ti-calendar"></i><div class="nb-bar"></div>ปฏิทิน</button>
   <button class="nb" id="nb-2" onclick="navTo('parcel',2)"><i class="ti ti-package"></i><div class="nb-bar"></div>พัสดุ</button>
   <button class="nb" id="nb-3" onclick="navTo('cost',3)"><i class="ti ti-receipt"></i><div class="nb-bar"></div>ต้นทุน</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
