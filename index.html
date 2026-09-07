@@ -843,29 +843,7 @@ async function delParcel(id){
   catch(e){setSS('err','ลบไม่สำเร็จ');}
 }
 
-function renderSum(){
-  const tCost=costs.reduce((s,c)=>s+nv(c.cost_total),0);
-  const tShip=costs.reduce((s,c)=>s+nv(c.ship_total),0);
-  document.getElementById('sh-cost').textContent=tCost>0?fmt(tCost):'-';
-  document.getElementById('sh-ship').textContent=tShip>0?fmt(tShip):'-';
-  const byC={};let idx=0;
-  costs.forEach(c=>{if(!byC[c.customer]){byC[c.customer]={n:0,qty:0,cost:0,ship:0,ae:0,fac:0,i:idx++};}byC[c.customer].n++;byC[c.customer].qty+=nv(c.qty);byC[c.customer].cost+=nv(c.cost_total);byC[c.customer].ship+=nv(c.ship_total);byC[c.customer].ae+=nv(c.ship_ae);byC[c.customer].fac+=nv(c.ship_fac);});
-  // Also pull from parcels for customers without costs
-  parcels.forEach(p=>{if(p.customer&&!byC[p.customer]&&!costs.find(c=>c.customer===p.customer)){byC[p.customer]={n:0,qty:0,cost:0,ship:0,i:idx++};}if(p.customer&&byC[p.customer])byC[p.customer].n=Math.max(byC[p.customer].n,parcels.filter(x=>x.customer===p.customer).length);});
-  const sorted=Object.entries(byC).sort((a,b)=>b[1].cost-a[1].cost);
-  const el=document.getElementById('sum-list');
-  if(!sorted.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">ยังไม่มีข้อมูล</div><div class="empty-sub">เพิ่มพัสดุพร้อมต้นทุนในแท็บ "พัสดุ"</div></div>`;return;}
-  el.innerHTML=sorted.map(([nm,d])=>`<div class="sum-card">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div class="sum-av" style="background:${AV[d.i%AV.length]}">${initials(nm)}</div>
-      <div><div class="sum-nm">${nm}</div><div class="sum-ct">${d.n} พัสดุ${d.qty?' · '+fmtN(d.qty)+' ชิ้น':''}</div></div>
-    </div>
-    <div style="text-align:right">
-      <div class="sum-cost">${d.cost>0?fmt(d.cost+d.ship):'-'}</div>
-      <div class="sum-sub">${d.cost>0?`ของ ${fmt(d.cost)} · 🇨🇳→🇹🇭 ${fmt(d.ae)} · 🚗 ${fmt(d.fac)}`:'ยังไม่กรอกต้นทุน'}</div>
-    </div>
-  </div>`).join('');
-}
+
 
 function fillDL(){
   const cu=[...new Set([...parcels.map(p=>p.customer),...costs.map(c=>c.customer)].filter(Boolean))];
