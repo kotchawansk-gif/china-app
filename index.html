@@ -476,6 +476,8 @@ function navTo(name,idx){
 }
 
 async function loadAll(){
+  const btn=document.getElementById('refresh-btn');
+  if(btn)btn.style.animation='spin 1s linear infinite';
   try{
     setSS('loading','กำลังโหลด...');
     [parcels,costs]=await Promise.all([dbGet('parcels'),dbGet('costs')]);
@@ -485,6 +487,7 @@ async function loadAll(){
     if(curPage==='cost')renderCostPage();
     if(curPage==='cal')renderCal();
   }catch(e){setSS('err','เชื่อมต่อไม่ได้');console.error(e);}
+  finally{const btn=document.getElementById('refresh-btn');if(btn)btn.style.animation='';}
 }
 
 function openSheet(){fillDL();editPid=null;editCid=null;resetForm();goStep(1);document.getElementById('sm-title').textContent='เพิ่มรายการ';document.getElementById('sm-save').textContent='✅ บันทึกทั้งหมด';document.getElementById('sheet-main').classList.add('on');}
@@ -932,14 +935,7 @@ function copyTracking(e,tracking){
   navigator.clipboard.writeText(tracking).then(()=>toast('📋 copy แล้ว: '+tracking)).catch(()=>{});
 }
 
-// Animate refresh button
-const _origLoad=loadAll;
-async function loadAll(){
-  const btn=document.getElementById('refresh-btn');
-  if(btn)btn.style.animation='spin 1s linear infinite';
-  await _origLoad();
-  if(btn)btn.style.animation='';
-}
+
 
 function getNotifs(){
   const notifs=[];
