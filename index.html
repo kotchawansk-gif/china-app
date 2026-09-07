@@ -701,8 +701,8 @@ function renderCal(){
 }
 function calMove(d){calM+=d;if(calM>11){calM=0;calY++;}if(calM<0){calM=11;calY--;}renderCal();}
 function selCal(k){selDay=k;renderCal();}
-function renderCalDetail(k,ev){const evs=(ev||buildEv())[k]||[];const el=document.getElementById('cal-detail');if(!evs.length){el.innerHTML=`<div style="color:var(--text3);font-size:13px;font-weight:500">${dStr(k)} — ไม่มีรายการ</div>`;return;}el.innerHTML=`<div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">${dStr(k)}</div>`+evs.map(e=>{const cls=e.type==='arrive'?'ev-a':e.type==='est'?'ev-e':'ev-o';const em=e.type==='arrive'?'✅':e.type==='est'?'🕐':'📤';const lbl=e.type==='arrive'?'ถึงไทยแล้ว':e.type==='est'?`คาดการณ์ (${e.method==='เรือ'?'🚢 เรือ':'🚛 รถ'})`:' ออกโกดัง';return`<div class="cal-ev" onclick="goToParcel('${e.tracking}')" style="cursor:pointer"><div class="cal-ev-icon ${cls}">${em}</div><div><div style="font-size:13px;font-weight:700;color:var(--br);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">${e.tracking}</div><div style="font-size:12px;color:var(--text2);margin-top:2px;font-weight:500">${e.product?'🛍️ '+e.product+' · ':''}${lbl}${e.customer?' · '+e.customer:''}</div></div></div>`;}).join('');}
-function renderComingAll(ev){const now=TODAY.getTime();const fut=Object.entries(ev).filter(([k,evs])=>new Date(k).getTime()>=now&&evs.some(e=>e.type==='est'||e.type==='arrive')).sort((a,b)=>new Date(a[0])-new Date(b[0])).slice(0,8);const el=document.getElementById('coming-all');if(!fut.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:8px 0;font-weight:500">ไม่มีรายการที่จะมาถึง</div>';return;}el.innerHTML=fut.map(([k,evs])=>{const diff=Math.ceil((new Date(k)-TODAY)/86400000);const rel=diff===0?'วันนี้':diff===1?'พรุ่งนี้':`อีก ${diff} วัน`;const items=evs.filter(e=>e.type==='est'||e.type==='arrive');const isSoon=diff<=3;return`<div class="p-card" onclick="goToParcel('${items[0]?.tracking}')" style="cursor:pointer"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="p-tracking" style="color:var(--br);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">${items.map(e=>e.tracking).join(', ')}</div><div class="p-inv">${items[0]?.product?'🛍️ '+items[0].product+' · ':''}${items[0]?.customer?items[0].customer+' · ':''}${dStr(k)} · ${items[0]?.type==='arrive'?'✅ ถึงจริง':'🕐 คาดการณ์'}</div></div><div class="pill ${isSoon?'p-ship':'p-wh'}">${rel}</div></div></div>`;}).join('');}
+function renderCalDetail(k,ev){const evs=(ev||buildEv())[k]||[];const el=document.getElementById('cal-detail');if(!evs.length){el.innerHTML=`<div style="color:var(--text3);font-size:13px;font-weight:500">${dStr(k)} — ไม่มีรายการ</div>`;return;}el.innerHTML=`<div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">${dStr(k)}</div>`+evs.map(e=>{const cls=e.type==='arrive'?'ev-a':e.type==='est'?'ev-e':'ev-o';const em=e.type==='arrive'?'✅':e.type==='est'?'🕐':'📤';const lbl=e.type==='arrive'?'ถึงไทยแล้ว':e.type==='est'?`คาดการณ์ (${e.method==='เรือ'?'🚢 เรือ':'🚛 รถ'})`:' ออกโกดัง';return`<div class="cal-ev" onclick="goToParcel('${e.tracking}')" style="cursor:pointer"><div class="cal-ev-icon ${cls}">${em}</div><div><div style="font-size:13px;font-weight:700;color:var(--br);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">${e.tracking}</div>${e.product?`<div style="font-size:12px;font-weight:700;color:var(--text);margin-top:1px">🛍️ ${e.product}</div>`:''}<div style="font-size:12px;color:var(--text2);margin-top:1px;font-weight:500">${lbl}${e.customer?' · '+e.customer:''}</div></div></div>`;}).join('');}
+function renderComingAll(ev){const now=TODAY.getTime();const fut=Object.entries(ev).filter(([k,evs])=>new Date(k).getTime()>=now&&evs.some(e=>e.type==='est'||e.type==='arrive')).sort((a,b)=>new Date(a[0])-new Date(b[0])).slice(0,8);const el=document.getElementById('coming-all');if(!fut.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;padding:8px 0;font-weight:500">ไม่มีรายการที่จะมาถึง</div>';return;}el.innerHTML=fut.map(([k,evs])=>{const diff=Math.ceil((new Date(k)-TODAY)/86400000);const rel=diff===0?'วันนี้':diff===1?'พรุ่งนี้':`อีก ${diff} วัน`;const items=evs.filter(e=>e.type==='est'||e.type==='arrive');const isSoon=diff<=3;return`<div class="p-card" onclick="goToParcel('${items[0]?.tracking}')" style="cursor:pointer"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="p-tracking" style="color:var(--br);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">${items.map(e=>e.tracking).join(', ')}</div>${items[0]?.product?`<div style="font-size:12px;font-weight:700;color:var(--text);margin-top:1px">🛍️ ${items[0].product}</div>`:''}<div class="p-inv">${items[0]?.customer?items[0].customer+' · ':''}${dStr(k)} · ${items[0]?.type==='arrive'?'✅ ถึงจริง':'🕐 คาดการณ์'}</div></div><div class="pill ${isSoon?'p-ship':'p-wh'}">${rel}</div></div></div>`;}).join('');}
 
 function setPF(f,btn){pFilter=f;document.querySelectorAll('.filters .fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderParcels();}
 
@@ -833,6 +833,231 @@ function renderSum(){
     </div>
   </div>`).join('');
 }
+
+function fillDL(){
+  const cu=[...new Set([...parcels.map(p=>p.customer),...costs.map(c=>c.customer)].filter(Boolean))];
+  ['sp-custs'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=cu.map(c=>`<option value="${c}">`).join('');});
+}
+
+function exportCSV(){
+  const rows=parcels.map(p=>{
+    const c=costs.find(x=>x.tracking===p.tracking);
+    const eta=getETA(p);
+    const etaStr=eta?(eta.actual?dStr(p.date_th):`${dStr(eta.min)} – ${dStr(eta.max)}`):'';
+    return[
+      p.tracking,p.invoice||'',p.customer||'',p.product||'',
+      p.qty||'',p.lot||'',p.status,p.method,
+      p.date_out||'',p.date_th||'',etaStr,
+      c?c.yuan||'':'',c?c.rate||'':'',c?c.cost_total:'',
+      c?c.ship_ae:'',c?c.ship_fac:'',c?c.ship_total:''
+    ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');
+  });
+  const h='เลขพัสดุ,เลขใบงาน,ลูกค้า,สินค้า,จำนวน(ชิ้น),ล็อต,สถานะ,ขนส่ง,วันออกโกดัง,วันถึงไทย,ETA,ราคาหยวน,เรท,ต้นทุน(฿),ค่าส่งจีน→ไทย,ค่าส่งไทย→บริษัท,ค่าส่งรวม';
+  const blob=new Blob(['\ufeff'+[h,...rows].join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`จัดซื้อจีน_${new Date().toLocaleDateString('th-TH')}.csv`;a.click();
+  toast('⬇️ ดาวน์โหลด CSV แล้ว เปิดใน Excel หรือ Google Sheets ได้เลย');
+}
+
+document.getElementById('sheet-main').addEventListener('click',e=>{if(e.target===document.getElementById('sheet-main'))closeSheet();});
+document.getElementById('sheet-notif').addEventListener('click',e=>{if(e.target===document.getElementById('sheet-notif'))closeNotif();});
+function goToParcel(tracking){
+  // Navigate to parcel page and scroll to that card
+  navTo('parcel',2);
+  setPF('all',document.querySelector('.filters .fb'));
+  setTimeout(()=>{
+    const cards=document.querySelectorAll('.p-tracking');
+    for(const c of cards){
+      if(c.textContent===tracking){
+        c.closest('.card-wrap').scrollIntoView({behavior:'smooth',block:'center'});
+        const card=c.closest('.p-card');
+        if(card){card.style.transition='box-shadow 0.3s';card.style.boxShadow='0 0 0 2px var(--br)';setTimeout(()=>{card.style.boxShadow='';},2000);}
+        break;
+      }
+    }
+  },400);
+}
+
+function getNotifs(){
+  const notifs=[];
+  const now=TODAY;
+  parcels.forEach(p=>{
+    const eta=getETA(p);
+    if(!eta||eta.actual)return;
+    const diff=Math.ceil((eta.min-now)/86400000);
+    if(diff<0){
+      notifs.push({level:'red',icon:'⚠️',title:'เกินกำหนด!',msg:`${p.tracking}${p.product?' · '+p.product:''}${p.customer?' · '+p.customer:''}`,sub:`ควรถึงไทย ${dStr(eta.min)} (${Math.abs(diff)} วันที่แล้ว)`,pid:p.id,tracking:p.tracking});
+    } else if(diff===0){
+      notifs.push({level:'am',icon:'🚨',title:'ถึงวันนี้!',msg:`${p.tracking}${p.customer?' · '+p.customer:''}`,sub:`คาดถึงไทยวันนี้`,pid:p.id,tracking:p.tracking});
+    } else if(diff<=3){
+      notifs.push({level:'am',icon:'⏰',title:`อีก ${diff} วัน`,msg:`${p.tracking}${p.product?' · '+p.product:''}${p.customer?' · '+p.customer:''}`,sub:`คาด ${dStr(eta.min)} – ${dStr(eta.max)}`,pid:p.id,tracking:p.tracking});
+    } else if(diff<=7){
+      notifs.push({level:'br',icon:'📦',title:`อีก ${diff} วัน`,msg:`${p.tracking}${p.product?' · '+p.product:''}${p.customer?' · '+p.customer:''}`,sub:`คาด ${dStr(eta.min)} – ${dStr(eta.max)}`,pid:p.id,tracking:p.tracking});
+    }
+  });
+  // No cost entered
+  parcels.forEach(p=>{
+    if(p.status==='รับของแล้ว'&&!costs.find(c=>c.tracking===p.tracking)){
+      notifs.push({level:'bl',icon:'💰',title:'ยังไม่กรอกต้นทุน',msg:`${p.tracking}${p.product?' · '+p.product:''}${p.customer?' · '+p.customer:''}`,sub:'รับของแล้วแต่ยังไม่บันทึกต้นทุน',pid:p.id,tracking:p.tracking,isCost:true});
+    }
+  });
+  return notifs;
+}
+
+function openNotif(){
+  const notifs=getNotifs();
+  const el=document.getElementById('notif-list');
+  if(!notifs.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">ไม่มีการแจ้งเตือน</div><div class="empty-sub">ทุกอย่างเรียบร้อยดีครับ</div></div>`;
+  } else {
+    el.innerHTML=notifs.map(n=>`
+      <div onclick="${n.isCost?`closeNotif();openCostForm(${n.pid})`:`closeNotif();goToParcel('${n.tracking}')`}" style="display:flex;gap:12px;padding:12px;border-radius:16px;margin-bottom:10px;cursor:pointer;background:${n.level==='red'?'var(--rd-l)':n.level==='am'?'var(--am-l)':n.level==='bl'?'var(--bl-l)':'var(--br-l)'}">
+        <div style="font-size:24px;flex-shrink:0">${n.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:800;color:${n.level==='red'?'var(--rd)':n.level==='am'?'var(--am)':n.level==='bl'?'var(--bl)':'var(--br)'};">${n.title}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-top:2px">${n.msg}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;font-weight:500">${n.sub}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;font-weight:600">แตะเพื่อดูรายละเอียด →</div>
+        </div>
+      </div>`).join('');
+  }
+  document.getElementById('sheet-notif').classList.add('on');
+}
+
+function closeNotif(){
+  document.getElementById('sheet-notif').classList.remove('on');
+}
+
+function updateNotifDot(){
+  const notifs=getNotifs();
+  const urgent=notifs.filter(n=>n.level==='red'||n.level==='am');
+  document.getElementById('notif-dot').style.display=urgent.length?'block':'none';
+}
+
+loadAll();
+setInterval(loadAll,30000);
+</script>
+</body>
+</html>let sumFilter=null;
+function renderSum(){
+  const tCost=costs.reduce((s,c)=>s+nv(c.cost_total),0);
+  const tShip=costs.reduce((s,c)=>s+nv(c.ship_total),0);
+  const tParcels=parcels.length;
+  const noCost=parcels.filter(p=>!costs.find(c=>c.tracking===p.tracking)).length;
+
+  document.getElementById('sh-cost').textContent=tCost>0?fmt(tCost):'-';
+  document.getElementById('sh-ship').textContent=tShip>0?fmt(tShip):'-';
+
+  // Build customer data from both parcels and costs
+  const byC={};let idx=0;
+  parcels.forEach(p=>{
+    if(!p.customer)return;
+    if(!byC[p.customer])byC[p.customer]={parcels:[],qty:0,cost:0,ship:0,i:idx++};
+    byC[p.customer].parcels.push(p);
+  });
+  costs.forEach(c=>{
+    const key=c.customer||'ไม่ระบุลูกค้า';
+    if(!byC[key])byC[key]={parcels:[],qty:0,cost:0,ship:0,i:idx++};
+    byC[key].qty+=nv(c.qty);
+    byC[key].cost+=nv(c.cost_total);
+    byC[key].ship+=nv(c.ship_total);
+  });
+
+  const sorted=Object.entries(byC).sort((a,b)=>b[1].cost-a[1].cost);
+  const el=document.getElementById('sum-list');
+
+  if(sumFilter){
+    const d=byC[sumFilter];
+    const pList=d?d.parcels:[];
+    el.innerHTML=`
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <button onclick="sumFilter=null;renderSum()" style="padding:8px 16px;border-radius:99px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">← กลับ</button>
+        <div style="font-size:15px;font-weight:800;color:var(--text)">👤 ${sumFilter}</div>
+      </div>
+      <div class="stat-row" style="margin-bottom:14px">
+        <div class="stat stat-br"><span class="stat-icon">📦</span><div class="stat-lbl">พัสดุ</div><div class="stat-val" style="font-size:18px">${pList.length}</div></div>
+        <div class="stat stat-am"><span class="stat-icon">💰</span><div class="stat-lbl">ต้นทุนรวม</div><div class="stat-val" style="font-size:16px">${d.cost>0?fmt(d.cost+d.ship):'-'}</div></div>
+      </div>
+      ${pList.length?pList.map(p=>{
+        const c=costs.find(x=>x.tracking===p.tracking);
+        const eta=getETA(p);
+        return`<div class="p-card" style="margin-bottom:10px">
+          <div class="p-top" style="cursor:pointer" onclick="goToParcel('${p.tracking}')">
+            <div>
+              <div class="p-tracking" style="color:var(--br);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">${p.tracking}</div>
+              ${p.product?`<div style="font-size:12px;font-weight:700;color:var(--text);margin-top:2px">🛍️ ${p.product}</div>`:''}
+              <div class="p-inv">${p.invoice?'🏭 '+p.invoice:''}${p.lot?' · '+p.lot:''}</div>
+            </div>
+            <div class="pill ${SPILL[p.status]||'p-wait'}">${SEMI[p.status]||'📦'} ${p.status}</div>
+          </div>
+          ${eta&&!eta.actual?`<div class="eta-bar eta-bar-ship">🕐 คาด ${dStr(eta.min)} – ${dStr(eta.max)}</div>`:''}
+          ${eta&&eta.actual?`<div class="eta-bar eta-bar-ok">✅ ถึงไทยแล้ว ${dStr(p.date_th)}</div>`:''}
+          ${c?`<div class="cost-summary" style="margin-top:8px">
+            <div class="cs-box cs-qty"><div class="cs-lbl">🔢 ชิ้น</div><div class="cs-val">${c.qty||p.qty||'-'}</div></div>
+            <div class="cs-box cs-cost"><div class="cs-lbl">💰 ต้นทุน</div><div class="cs-val">${fmt(c.cost_total)}</div></div>
+            <div class="cs-box cs-ship"><div class="cs-lbl">🚢 ค่าส่ง</div><div class="cs-val">${fmt(c.ship_total)}</div></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button onclick="editParcel(${p.id})" style="flex:1;padding:9px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><i class="ti ti-edit"></i> แก้ไข</button>
+            <button onclick="openCostForm(${p.id})" style="flex:1;padding:9px;border-radius:12px;border:1.5px solid var(--br);background:var(--br-l);color:var(--br);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><i class="ti ti-receipt"></i> แก้ต้นทุน</button>
+          </div>`
+          :`<div style="margin-top:10px"><button onclick="openCostForm(${p.id})" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid rgba(184,102,42,0.3);background:var(--am-l);color:var(--am);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><i class="ti ti-plus"></i> กรอกต้นทุน</button></div>`}
+        </div>`;
+      }).join(''):`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">ไม่มีพัสดุ</div></div>`}
+      <button onclick="exportCustomerCSV('${sumFilter}')" style="width:100%;padding:13px;border-radius:16px;border:1.5px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px"><i class="ti ti-download"></i> Export เฉพาะ ${sumFilter}</button>
+    `;
+    return;
+  }
+
+  // Main summary view
+  if(!sorted.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">ยังไม่มีข้อมูล</div><div class="empty-sub">เพิ่มพัสดุในแท็บ "พัสดุ"</div></div>`;
+    return;
+  }
+
+  // Summary stats
+  el.innerHTML=`
+    <div class="p-card" style="margin-bottom:14px;background:var(--br-l);border-color:rgba(139,94,60,0.2)">
+      <div style="font-size:13px;font-weight:800;color:var(--br);margin-bottom:10px">📊 ภาพรวมทั้งหมด</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <div style="text-align:center"><div style="font-size:11px;font-weight:600;color:var(--text3)">พัสดุทั้งหมด</div><div style="font-size:18px;font-weight:800;color:var(--br)">${tParcels}</div></div>
+        <div style="text-align:center"><div style="font-size:11px;font-weight:600;color:var(--text3)">ต้นทุนรวม</div><div style="font-size:15px;font-weight:800;color:var(--am)">${tCost>0?fmt(tCost):'-'}</div></div>
+        <div style="text-align:center"><div style="font-size:11px;font-weight:600;color:var(--text3)">ยังไม่กรอก</div><div style="font-size:18px;font-weight:800;color:${noCost>0?'var(--rd)':'var(--gr)'}">${noCost}</div></div>
+      </div>
+    </div>
+    <div class="sec-hd"><div class="sec-lbl">👥 แยกตามลูกค้า</div><button class="see-all" onclick="exportCSV()">⬇️ Export ทั้งหมด</button></div>
+    ${sorted.map(([nm,d])=>`
+    <div class="sum-card" style="cursor:pointer" onclick="sumFilter='${nm}';renderSum()">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="sum-av" style="background:${AV[d.i%AV.length]}">${initials(nm)}</div>
+        <div>
+          <div class="sum-nm">${nm}</div>
+          <div class="sum-ct">${d.parcels.length} พัสดุ${d.qty?' · '+fmtN(d.qty)+' ชิ้น':''}</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="sum-cost">${d.cost>0?fmt(d.cost+d.ship):'-'}</div>
+        <div class="sum-sub" style="font-size:10px">${d.cost>0?`ของ ${fmt(d.cost)} · ส่ง ${fmt(d.ship)}`:'ยังไม่กรอกต้นทุน'}</div>
+        <div style="font-size:11px;color:var(--br);margin-top:3px;font-weight:700">กดดูรายละเอียด →</div>
+      </div>
+    </div>`).join('')}
+  `;
+}
+
+function exportCustomerCSV(customer){
+  const cParcels=parcels.filter(p=>p.customer===customer);
+  const rows=cParcels.map(p=>{
+    const c=costs.find(x=>x.tracking===p.tracking);
+    const eta=getETA(p);
+    const etaStr=eta?(eta.actual?dStr(p.date_th):`${dStr(eta.min)} – ${dStr(eta.max)}`):'';
+    return[p.tracking,p.invoice||'',p.customer||'',p.product||'',p.qty||'',p.lot||'',p.status,p.method,p.date_out||'',p.date_th||'',etaStr,c?c.yuan||'':'',c?c.rate||'':'',c?c.cost_total:'',c?c.ship_ae:'',c?c.ship_fac:'',c?c.ship_total:''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');
+  });
+  const h='เลขพัสดุ,เลขใบงาน,ลูกค้า,สินค้า,จำนวน(ชิ้น),ล็อต,สถานะ,ขนส่ง,วันออกโกดัง,วันถึงไทย,ETA,ราคาหยวน,เรท,ต้นทุน(฿),ค่าส่งจีน→ไทย,ค่าส่งไทย→บริษัท,ค่าส่งรวม';
+  const blob=new Blob(['﻿'+[h,...rows].join('
+')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`จัดซื้อจีน_${customer}_${new Date().toLocaleDateString('th-TH')}.csv`;a.click();
+  toast(`⬇️ Export ${customer} แล้ว`);
+}
+
 
 function fillDL(){
   const cu=[...new Set([...parcels.map(p=>p.customer),...costs.map(c=>c.customer)].filter(Boolean))];
