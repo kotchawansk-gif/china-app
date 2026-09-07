@@ -633,8 +633,8 @@ function resetForm(){
   document.getElementById('sp-et').style.display='none';
   document.getElementById('eta-txt').textContent='ใส่วันออกโกดังเพื่อคำนวณ ETA';
   ['sc-yuan','sc-rate','sc-ae','sc-fac'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=id==='sc-rate'?'5.00':'';});document.getElementById('sc-thb').value='';
-  ['cc-cost','cc-ship'].forEach(id=>document.getElementById(id).textContent='฿0');
-  document.getElementById('cc-qty').textContent='0';
+  ['cc-cost','cc-ship','cc-total','cc-per'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='฿0';});
+  const qshow=document.getElementById('cc-qty-show');if(qshow)qshow.textContent='จำนวน 0 ชิ้น';
 }
 
 function getPData(){
