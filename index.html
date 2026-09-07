@@ -562,7 +562,7 @@ function navTo(name,idx){
   if(name==='cal')renderCal();
   if(name==='parcel')renderParcels();
   if(name==='cost')renderCostPage();
-  if(name==='sum')renderSum();
+  if(name==='sum'){if(parcels.length)renderSum();else loadAll().then(()=>renderSum());}
 }
 
 async function loadAll(){
@@ -954,8 +954,10 @@ setInterval(loadAll,30000);
   document.getElementById('sh-cost').textContent=tCost>0?fmt(tCost):'-';
   document.getElementById('sh-ship').textContent=tShip>0?fmt(tShip):'-';
   const el=document.getElementById('sum-list');
+  console.log('renderSum parcels:', parcels.length, 'costs:', costs.length);
   if(!parcels.length){
-    el.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">ยังไม่มีข้อมูล</div><div class="empty-sub">เพิ่มพัสดุในแท็บ พัสดุ ก่อน</div></div>';
+    el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3)">⏳ กำลังโหลด...</div>';
+    loadAll();
     return;
   }
   let rows='';
