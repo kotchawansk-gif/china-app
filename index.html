@@ -294,6 +294,13 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
   <div id="parcel-list"></div>
 </div>
 
+<!-- Cost page content will be rendered by renderCostPage() -->
+
+<!-- Cost -->
+<div class="page right" id="page-cost">
+  <div id="cost-list"></div>
+</div>
+
 <!-- Summary -->
 <div class="page right" id="page-sum">
   <div class="stat-row" style="margin-bottom:14px">
@@ -314,7 +321,8 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
     <button class="nb on" id="nb-0" onclick="navTo('dash',0)"><i class="ti ti-home"></i><div class="nb-bar"></div>หน้าหลัก</button>
     <button class="nb" id="nb-1" onclick="navTo('cal',1)"><i class="ti ti-calendar"></i><div class="nb-bar"></div>ปฏิทิน</button>
     <button class="nb" id="nb-2" onclick="navTo('parcel',2)"><i class="ti ti-package"></i><div class="nb-bar"></div>พัสดุ</button>
-    <button class="nb" id="nb-3" onclick="navTo('sum',3)"><i class="ti ti-chart-bar"></i><div class="nb-bar"></div>สรุป</button>
+    <button class="nb" id="nb-3" onclick="navTo('cost',3)"><i class="ti ti-receipt"></i><div class="nb-bar"></div>ต้นทุน</button>
+    <button class="nb" id="nb-4" onclick="navTo('sum',4)"><i class="ti ti-chart-bar"></i><div class="nb-bar"></div>สรุป</button>
   </div>
 </div>
 
@@ -430,6 +438,70 @@ document.getElementById('top-date').textContent=`${DOW[dd.getDay()]} ${dd.getDat
 
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
+function renderCostPage(){
+  const el=document.getElementById('cost-list');
+  if(!el)return;
+  if(!parcels.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">🧾</div><div class="empty-title">ยังไม่มีพัสดุ</div><div class="empty-sub">เพิ่มพัสดุในแท็บ "พัสดุ" ก่อนครับ</div></div>`;
+    return;
+  }
+  el.innerHTML=parcels.map(p=>{
+    const c=costs.find(x=>x.tracking===p.tracking);
+    const hasCost=!!c;
+    return`<div class="p-card" style="margin-bottom:10px">
+      <div class="p-top">
+        <div>
+          <div class="p-tracking">${p.tracking}</div>
+          <div class="p-inv">${p.customer||''}${p.product?' · '+p.product:''}${p.invoice?' · 🏭'+p.invoice:''}</div>
+        </div>
+        <div class="pill ${hasCost?'p-arrive':'p-ship'}">${hasCost?'✅ มีต้นทุน':'💰 ยังไม่กรอก'}</div>
+      </div>
+      ${hasCost?`
+      <div class="cost-summary" style="margin-bottom:10px">
+        <div class="cs-box cs-qty"><div class="cs-lbl">🔢 ชิ้น</div><div class="cs-val">${c.qty||p.qty||'-'}</div></div>
+        <div class="cs-box cs-cost"><div class="cs-lbl">💴 ต้นทุน</div><div class="cs-val">${fmt(c.cost_total)}</div></div>
+        <div class="cs-box cs-ship"><div class="cs-lbl">🚢 ค่าส่ง</div><div class="cs-val">${fmt(c.ship_total)}</div></div>
+      </div>`:''}
+      <button onclick="openCostForm(${p.id})" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid ${hasCost?'var(--br)':'rgba(184,102,42,0.3)'};background:${hasCost?'var(--br-l)':'var(--am-l)'};color:${hasCost?'var(--br)':'var(--am)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+        <i class="ti ti-${hasCost?'edit':'plus'}"></i>${hasCost?'แก้ไขต้นทุน':'กรอกต้นทุน'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function openCostForm(pid){
+  const p=parcels.find(x=>x.id===pid);if(!p)return;
+  const c=costs.find(x=>x.tracking===p.tracking);
+  editPid=pid;editCid=c?c.id:null;
+  resetForm();fillDL();
+  // Fill step1 parcel data
+  document.getElementById('sp-tracking').value=p.tracking||'';
+  document.getElementById('sp-inv').value=p.invoice||'';
+  document.getElementById('sp-customer').value=p.customer||'';
+  document.getElementById('sp-product').value=p.product||'';
+  document.getElementById('sp-qty').value=p.qty||'';
+  document.getElementById('sp-lot').value=p.lot||'';
+  document.getElementById('sp-status').value=p.status||'ยังไม่เข้าโกดัง';
+  document.getElementById('sp-method').value=p.method||'รถ';
+  document.getElementById('sp-dateout').value=p.date_out||'';
+  document.getElementById('sp-dateth').value=p.date_th||'';
+  document.getElementById('sp-kg').value=p.kg||'';
+  document.getElementById('sp-note').value=p.note||'';
+  // Fill step2 cost data
+  if(c){
+    document.getElementById('sc-yuan').value=c.yuan||'';
+    document.getElementById('sc-rate').value=c.rate||'5.00';
+    document.getElementById('sc-ae').value=c.ship_ae||'';
+    document.getElementById('sc-fac').value=c.ship_fac||'';
+    calcC();
+  }
+  document.getElementById('sm-title').textContent=c?'แก้ไขต้นทุน':'กรอกต้นทุน';
+  document.getElementById('sm-save').textContent='✅ บันทึก';
+  upETA();
+  goStep(2);
+  document.getElementById('sheet-main').classList.add('on');
+}
+
 function navTo(name,idx){
   if(name===curPage)return;
   const dir=idx>curIdx?1:-1;
@@ -446,11 +518,12 @@ function navTo(name,idx){
   }));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('nb-'+idx).classList.add('on');
-  document.getElementById('fab').style.display=name==='parcel'?'flex':'none';
+  document.getElementById('fab').style.display=(name==='parcel')?'flex':'none';
   curPage=name;curIdx=idx;
   if(name==='dash')renderDash();
   if(name==='cal')renderCal();
   if(name==='parcel')renderParcels();
+  if(name==='cost')renderCostPage();
   if(name==='sum')renderSum();
 }
 
@@ -461,6 +534,7 @@ async function loadAll(){
     setSS('ok','ซิงค์แล้ว');fillDL();
     if(curPage==='dash')renderDash();
     if(curPage==='parcel')renderParcels();
+    if(curPage==='cost')renderCostPage();
     if(curPage==='sum')renderSum();
     if(curPage==='cal')renderCal();
   }catch(e){setSS('err','เชื่อมต่อไม่ได้');console.error(e);}
@@ -580,7 +654,7 @@ function renderDash(){
   ce.innerHTML=coming.map(p=>{
     const e=getETA(p);const diff=Math.ceil((e.min-TODAY)/86400000);
     const cls=diff<=2?'urgent':diff<=7?'soon':'';
-    return`<div class="eta-chip ${cls}">
+    return`<div class="eta-chip ${cls}" onclick="goToParcel('${p.tracking}')" style="cursor:pointer">
       <div class="eta-chip-days">${diff===0?'วันนี้':diff}</div>
       <div class="eta-chip-label">${diff>0?'วัน เหลือ':''}</div>
       <div class="eta-chip-tracking">${p.tracking}</div>
@@ -592,9 +666,10 @@ function renderDash(){
   if(!transit.length){tl.innerHTML='<div style="color:var(--text3);font-size:13px;font-weight:500;padding:8px 0">ไม่มีพัสดุระหว่างขนส่ง</div>';return;}
   tl.innerHTML=transit.slice(0,3).map(p=>{
     const e=getETA(p);
-    return`<div class="p-card" style="margin-bottom:8px">
+    return`<div class="p-card" style="margin-bottom:8px;cursor:pointer" onclick="goToParcel('${p.tracking}')">
       <div class="p-top"><div><div class="p-tracking">${p.tracking}</div><div class="p-inv">${p.customer||''}${p.qty?' · '+p.qty+' ชิ้น':''}</div></div><div class="pill p-ship">🚛 กำลังส่ง</div></div>
       ${e?`<div class="eta-bar eta-bar-ship">🕐 คาด ${dStr(e.min)} – ${dStr(e.max)}</div>`:''}
+      <div style="font-size:12px;color:var(--text3);margin-top:6px;font-weight:500">แตะเพื่อดูรายละเอียด →</div>
     </div>`;
   }).join('');
 }
@@ -761,6 +836,23 @@ function exportCSV(){
 }
 
 document.getElementById('sheet-main').addEventListener('click',e=>{if(e.target===document.getElementById('sheet-main'))closeSheet();});
+function goToParcel(tracking){
+  // Navigate to parcel page and scroll to that card
+  navTo('parcel',2);
+  setPF('all',document.querySelector('.filters .fb'));
+  setTimeout(()=>{
+    const cards=document.querySelectorAll('.p-tracking');
+    for(const c of cards){
+      if(c.textContent===tracking){
+        c.closest('.card-wrap').scrollIntoView({behavior:'smooth',block:'center'});
+        const card=c.closest('.p-card');
+        if(card){card.style.transition='box-shadow 0.3s';card.style.boxShadow='0 0 0 2px var(--br)';setTimeout(()=>{card.style.boxShadow='';},2000);}
+        break;
+      }
+    }
+  },400);
+}
+
 loadAll();
 setInterval(loadAll,30000);
 </script>
