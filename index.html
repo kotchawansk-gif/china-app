@@ -256,7 +256,7 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
   </div>
   <input type="file" id="ae-import" accept=".xlsx,.xls" style="display:none" onchange="importAE(this)">
   <div style="position:relative;margin-bottom:8px">
-    <input id="search-parcel" placeholder="🔍 ค้นหาเลขพัสดุ, สินค้า, ลูกค้า..." oninput="renderParcels()" style="width:100%;padding:9px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-family:inherit">
+    <input id="search-parcel" placeholder="🔍 ค้นหาเลขพัสดุ, สินค้า, ลูกค้า..." oninput="pPage=1;renderParcels()" style="width:100%;padding:9px 12px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-family:inherit">
   </div>
   <div class="filters">
     <button class="fb on" onclick="setPF('all',this)">ทั้งหมด</button>
@@ -385,7 +385,8 @@ const dbDel=async(t,id)=>{const r=await fetch(`${SURL}/rest/v1/${t}?id=eq.${id}`
 function setSS(s,m){const el=document.getElementById('sync-st');el.className='sync-status sync-'+s;document.getElementById('sync-txt').textContent=m;}
 
 const TODAY=new Date();TODAY.setHours(0,0,0,0);
-let parcels=[],costs=[],editPid=null,editCid=null,pFilter='all';
+let parcels=[],costs=[],editPid=null,editCid=null,pFilter='all',pPage=1;
+const PAGE_SIZE=25;
 let calY=TODAY.getFullYear(),calM=TODAY.getMonth(),selDay=null,curPage='dash',curIdx=0;
 
 const nv=v=>parseFloat(v)||0;
@@ -616,7 +617,7 @@ function renderComingAll(ev){
   if(!fut.length){el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:6px 0">ไม่มีรายการที่จะมาถึง</div>';return;}
   el.innerHTML=fut.map(([k,evs])=>{const diff=Math.ceil((new Date(k)-TODAY)/86400000);const rel=diff===0?'วันนี้':diff===1?'พรุ่งนี้':`อีก ${diff} วัน`;const items=evs.filter(e=>e.type==='est'||e.type==='arrive');const isSoon=diff<=2;return`<div class="p-card" style="cursor:pointer" onclick="goToParcel('${items[0]?.tracking}')"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;font-weight:700;color:var(--br);text-decoration:underline;text-decoration-style:dotted">${items.map(e=>e.tracking).join(', ')}</div>${items[0]?.product?`<div style="font-size:10px;font-weight:600;color:var(--text)">🛍️ ${items[0].product}</div>`:''}<div style="font-size:10px;color:var(--text2)">${dStr(k)} · ${items[0]?.type==='arrive'?'✅ ถึงจริง':'🕐 คาดการณ์'}</div></div><div class="pill ${isSoon?'p-ship':'p-wh'}">${rel}</div></div></div>`;}).join('');}
 
-function setPF(f,btn){pFilter=f;document.querySelectorAll('.filters .fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderParcels();}
+function setPF(f,btn){pFilter=f;pPage=1;document.querySelectorAll('.filters .fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderParcels();}
 
 function initSwipe(card){
   let sx=0,sy=0,sw=false,swiped=false;
@@ -630,7 +631,11 @@ function renderParcels(){
   if(q)list=list.filter(p=>[p.tracking,p.product,p.customer,p.lot,p.invoice].filter(Boolean).some(v=>v.toLowerCase().includes(q)));
   const el=document.getElementById('parcel-list');
   if(!list.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">ยังไม่มีพัสดุ</div><div class="empty-sub">กดปุ่ม + เพื่อเพิ่มรายการแรก</div></div>`;return;}
-  el.innerHTML=list.map(p=>{
+  const totalPages=Math.ceil(list.length/PAGE_SIZE)||1;
+  if(pPage>totalPages)pPage=totalPages;
+  const start=(pPage-1)*PAGE_SIZE;
+  const pageList=list.slice(start,start+PAGE_SIZE);
+  el.innerHTML=pageList.map(p=>{
     const eta=getETA(p);let etaHtml='';
     if(eta){if(eta.actual)etaHtml=`<div class="eta-bar eta-bar-ok">✅ ถึงไทยแล้ว ${dStr(p.date_th)}</div>`;else etaHtml=`<div class="eta-bar eta-bar-ship">🕐 คาด ${dStr(eta.min)} – ${dStr(eta.max)}</div>`;}
     const c=costs.find(x=>x.tracking===p.tracking);
@@ -644,7 +649,31 @@ function renderParcels(){
       <div class="act-row"><button class="act-btn" onclick="editParcel(${p.id})"><i class="ti ti-edit"></i> แก้ไข</button><button class="act-btn act-del" onclick="delParcel(${p.id})"><i class="ti ti-trash"></i> ลบ</button></div>
     </div></div>`;
   }).join('');
-  list.forEach(p=>{const c=document.getElementById('card-'+p.id);if(c)initSwipe(c);});
+  pageList.forEach(p=>{const c=document.getElementById('card-'+p.id);if(c)initSwipe(c);});
+
+  // Pagination bar
+  if(totalPages>1){
+    let pg='<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;padding-bottom:4px">';
+    pg+=`<button onclick="pPage=Math.max(1,pPage-1);renderParcels()" ${pPage===1?'disabled':''} style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text2);opacity:${pPage===1?'0.3':'1'}">‹</button>`;
+    // หน้าที่แสดง
+    let pages=[];
+    if(totalPages<=5){for(let i=1;i<=totalPages;i++)pages.push(i);}
+    else{
+      pages=[1];
+      if(pPage>3)pages.push('...');
+      for(let i=Math.max(2,pPage-1);i<=Math.min(totalPages-1,pPage+1);i++)pages.push(i);
+      if(pPage<totalPages-2)pages.push('...');
+      pages.push(totalPages);
+    }
+    pages.forEach(p=>{
+      if(p==='...'){pg+=`<span style="font-size:12px;color:var(--text3)">···</span>`;}
+      else{pg+=`<button onclick="pPage=${p};renderParcels()" style="width:32px;height:32px;border-radius:50%;border:${p===pPage?'none':'1px solid var(--border)'};background:${p===pPage?'var(--br)':'var(--card)'};color:${p===pPage?'#fff':'var(--text2)'};cursor:pointer;font-size:12px;font-weight:700">${p}</button>`;}
+    });
+    pg+=`<button onclick="pPage=Math.min(totalPages,pPage+1);renderParcels()" ${pPage===totalPages?'disabled':''} style="width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text2);opacity:${pPage===totalPages?'0.3':'1'}">›</button>`;
+    pg+=`<span style="font-size:10px;color:var(--text3);margin-left:4px">${start+1}–${Math.min(start+PAGE_SIZE,list.length)} / ${list.length}</span>`;
+    pg+='</div>';
+    el.innerHTML+=pg;
+  }
 }
 
 function editParcel(id){
