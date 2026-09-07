@@ -974,107 +974,41 @@ setInterval(loadAll,30000);
 function renderSum(){
   const tCost=costs.reduce((s,c)=>s+nv(c.cost_total),0);
   const tShip=costs.reduce((s,c)=>s+nv(c.ship_total),0);
-  const tParcels=parcels.length;
-  const noCost=parcels.filter(p=>!costs.find(c=>c.tracking===p.tracking)).length;
-
   document.getElementById('sh-cost').textContent=tCost>0?fmt(tCost):'-';
   document.getElementById('sh-ship').textContent=tShip>0?fmt(tShip):'-';
 
-  // Build customer data from both parcels and costs
-  const byC={};let idx=0;
-  parcels.forEach(p=>{
-    const key=p.customer||p.tracking||'ไม่ระบุ';
-    if(!byC[key])byC[key]={parcels:[],qty:0,cost:0,ship:0,i:idx++,customer:p.customer};
-    byC[key].parcels.push(p);
-  });
-  costs.forEach(c=>{
-    const key=c.customer||c.tracking||'ไม่ระบุ';
-    if(!byC[key])byC[key]={parcels:[],qty:0,cost:0,ship:0,i:idx++};
-    byC[key].qty+=nv(c.qty);
-    byC[key].cost+=nv(c.cost_total);
-    byC[key].ship+=nv(c.ship_total);
-  });
-
-  const sorted=Object.entries(byC).sort((a,b)=>b[1].cost-a[1].cost);
   const el=document.getElementById('sum-list');
-
-  if(sumFilter){
-    const d=byC[sumFilter];
-    const pList=d?d.parcels:[];
-    el.innerHTML=`
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-        <button onclick="sumFilter=null;renderSum()" style="padding:8px 16px;border-radius:99px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer">← กลับ</button>
-        <div style="font-size:15px;font-weight:800;color:var(--text)">👤 ${sumFilter}</div>
-      </div>
-      <div class="stat-row" style="margin-bottom:6px">
-        <div class="stat stat-br"><span class="stat-icon">📦</span><div class="stat-lbl">พัสดุ</div><div class="stat-val" style="font-size:18px">${pList.length}</div></div>
-        <div class="stat stat-am"><span class="stat-icon">💰</span><div class="stat-lbl">ต้นทุนรวม</div><div class="stat-val" style="font-size:16px">${d.cost>0?fmt(d.cost+d.ship):'-'}</div></div>
-      </div>
-      ${pList.length?pList.map(p=>{
-        const c=costs.find(x=>x.tracking===p.tracking);
-        const eta=getETA(p);
-        return`<div class="p-card" style="margin-bottom:6px">
-          <div class="p-top" style="cursor:pointer" onclick="goToParcel('${p.tracking}')">
-            <div>
-              <div class="p-tracking" style="color:var(--br);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">${p.tracking}</div>
-              ${p.product?`<div style="font-size:12px;font-weight:700;color:var(--text);margin-top:2px">🛍️ ${p.product}</div>`:''}
-              <div class="p-inv">${p.invoice?'🏭 '+p.invoice:''}${p.lot?' · '+p.lot:''}</div>
-            </div>
-            <div class="pill ${SPILL[p.status]||'p-wait'}">${SEMI[p.status]||'📦'} ${p.status}</div>
-          </div>
-          ${eta&&!eta.actual?`<div class="eta-bar eta-bar-ship">🕐 คาด ${dStr(eta.min)} – ${dStr(eta.max)}</div>`:''}
-          ${eta&&eta.actual?`<div class="eta-bar eta-bar-ok">✅ ถึงไทยแล้ว ${dStr(p.date_th)}</div>`:''}
-          ${c?`<div class="cost-summary" style="margin-top:8px">
-            <div class="cs-box cs-qty"><div class="cs-lbl">🔢 ชิ้น</div><div class="cs-val">${c.qty||p.qty||'-'}</div></div>
-            <div class="cs-box cs-cost"><div class="cs-lbl">💰 ต้นทุน</div><div class="cs-val">${fmt(c.cost_total)}</div></div>
-            <div class="cs-box cs-ship"><div class="cs-lbl">🚢 ค่าส่ง</div><div class="cs-val">${fmt(c.ship_total)}</div></div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:6px">
-            <button onclick="editParcel(${p.id})" style="flex:1;padding:7px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px"><i class="ti ti-edit"></i> แก้ไข</button>
-            <button onclick="openCostForm(${p.id})" style="flex:1;padding:7px;border-radius:10px;border:1.5px solid var(--br);background:var(--br-l);color:var(--br);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px"><i class="ti ti-receipt"></i> แก้ต้นทุน</button>
-          </div>`
-          :`<div style="margin-top:6px"><button onclick="openCostForm(${p.id})" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid rgba(184,102,42,0.3);background:var(--am-l);color:var(--am);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><i class="ti ti-plus"></i> กรอกต้นทุน</button></div>`}
-        </div>`;
-      }).join(''):`<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">ไม่มีพัสดุ</div></div>`}
-      <button onclick="exportCustomerCSV('${sumFilter}')" style="width:100%;padding:13px;border-radius:16px;border:1.5px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px"><i class="ti ti-download"></i> Export เฉพาะ ${sumFilter}</button>
-    `;
-    return;
-  }
-
-  // Main summary view
-  if(!sorted.length){
+  if(!parcels.length){
     el.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">ยังไม่มีข้อมูล</div><div class="empty-sub">เพิ่มพัสดุในแท็บ "พัสดุ"</div></div>`;
     return;
   }
 
-  // Summary stats
-  el.innerHTML=`
-    <div class="p-card" style="margin-bottom:6px;background:var(--br-l);border-color:rgba(139,94,60,0.2)">
-      <div style="font-size:12px;font-weight:800;color:var(--br);margin-bottom:6px">📊 ภาพรวมทั้งหมด</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-        <div style="text-align:center"><div style="font-size:11px;font-weight:600;color:var(--text3)">พัสดุทั้งหมด</div><div style="font-size:18px;font-weight:800;color:var(--br)">${tParcels}</div></div>
-        <div style="text-align:center"><div style="font-size:11px;font-weight:600;color:var(--text3)">ต้นทุนรวม</div><div style="font-size:15px;font-weight:800;color:var(--am)">${tCost>0?fmt(tCost):'-'}</div></div>
-        <div style="text-align:center"><div style="font-size:11px;font-weight:600;color:var(--text3)">ยังไม่กรอก</div><div style="font-size:18px;font-weight:800;color:${noCost>0?'var(--rd)':'var(--gr)'}">${noCost}</div></div>
-      </div>
-    </div>
-    <div class="sec-hd"><div class="sec-lbl">👥 แยกตามลูกค้า</div><button class="see-all" onclick="exportCSV()">⬇️ Export ทั้งหมด</button></div>
-    ${sorted.map(([nm,d])=>`
-    <div class="sum-card" style="cursor:pointer" onclick="sumFilter='${nm}';renderSum()">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="sum-av" style="background:${AV[d.i%AV.length]}">${initials(nm)}</div>
-        <div>
-          <div class="sum-nm">${nm}</div>
-          <div class="sum-ct">${d.parcels.length} พัสดุ${d.qty?' · '+fmtN(d.qty)+' ชิ้น':''}</div>
+  el.innerHTML=parcels.map(p=>{
+    const c=costs.find(x=>x.tracking===p.tracking);
+    const eta=getETA(p);
+    const pillCls=SPILL[p.status]||'p-wait';
+    const em=SEMI[p.status]||'📦';
+    return`<div class="p-card" style="cursor:pointer" onclick="goToParcel('${p.tracking}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--br);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">${p.tracking}</div>
+          ${p.product?`<div style="font-size:11px;font-weight:600;color:var(--text);margin-top:2px">🛍️ ${p.product}</div>`:''}
+          <div style="font-size:10px;color:var(--text3);margin-top:1px">${p.customer?'👤 '+p.customer:''}${p.invoice?' · 🏭'+p.invoice:''}</div>
         </div>
+        <div class="pill ${pillCls}" style="margin-left:8px;flex-shrink:0">${em} ${p.status}</div>
       </div>
-      <div style="text-align:right">
-        <div class="sum-cost">${d.cost>0?fmt(d.cost+d.ship):'-'}</div>
-        <div class="sum-sub" style="font-size:10px">${d.cost>0?`ของ ${fmt(d.cost)} · ส่ง ${fmt(d.ship)}`:'ยังไม่กรอกต้นทุน'}</div>
-        <div style="font-size:11px;color:var(--br);margin-top:3px;font-weight:700">กดดูรายละเอียด →</div>
-      </div>
-    </div>`).join('')}
-  `;
+      ${eta&&!eta.actual?`<div class="eta-bar eta-bar-ship">🕐 คาด ${dStr(eta.min)} – ${dStr(eta.max)}</div>`:''}
+      ${eta&&eta.actual?`<div class="eta-bar eta-bar-ok">✅ ถึงไทยแล้ว ${dStr(p.date_th)}</div>`:''}
+      ${c?`<div class="cost-summary" style="margin-top:6px">
+        <div class="cs-box cs-qty"><div class="cs-lbl">🔢 ชิ้น</div><div class="cs-val">${c.qty||p.qty||'-'}</div></div>
+        <div class="cs-box cs-cost"><div class="cs-lbl">💰 ต้นทุน</div><div class="cs-val">${fmt(c.cost_total)}</div></div>
+        <div class="cs-box cs-ship"><div class="cs-lbl">🚢 ค่าส่ง</div><div class="cs-val">${fmt(c.ship_total)}</div></div>
+      </div>`:`<div style="font-size:10px;color:var(--am);margin-top:6px;font-weight:600">💰 ยังไม่กรอกต้นทุน</div>`}
+      <div style="font-size:10px;color:var(--text3);margin-top:6px;font-weight:500">แตะเพื่อดูรายละเอียด →</div>
+    </div>`;
+  }).join('');
 }
+
 
 function exportCustomerCSV(customer){
   const cParcels=parcels.filter(p=>p.customer===customer);
