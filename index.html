@@ -905,16 +905,23 @@ async function loadUserList(){
             <div style="font-size:13px;font-weight:700;color:var(--text)">${u.username}</div>
             <div style="font-size:11px;color:var(--br);font-weight:600">${roleLabel[u.role]||u.role}</div>
           </div>
-          <button onclick="togglePass_${u.id}()" id="eye-${u.id}" style="padding:4px 8px;border-radius:99px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer">👁 ดูรหัส</button>
+          <button onclick="toggleUserPass(${u.id})" id="eye-${u.id}" style="padding:4px 8px;border-radius:99px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer">👁 ดูรหัส</button>
         </div>
         <div style="display:flex;gap:6px;align-items:center">
           <input id="pass-${u.id}" type="password" value="${u.password}" style="flex:1;padding:7px 10px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);font-size:13px;font-family:inherit">
           <button onclick="saveUserPass(${u.id})" style="padding:7px 12px;border-radius:10px;border:none;background:var(--br);color:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">บันทึก</button>
         </div>
       </div>
-      <script>function togglePass_${u.id}(){const el=document.getElementById('pass-${u.id}');const btn=document.getElementById('eye-${u.id}');if(el.type==='password'){el.type='text';btn.textContent='🙈 ซ่อน';}else{el.type='password';btn.textContent='👁 ดูรหัส';}}<\/script>
     `).join('');
   }catch(e){document.getElementById('user-list').textContent='โหลดไม่ได้';}
+}
+
+function toggleUserPass(id){
+  const el=document.getElementById('pass-'+id);
+  const btn=document.getElementById('eye-'+id);
+  if(!el||!btn)return;
+  if(el.type==='password'){el.type='text';btn.textContent='🙈 ซ่อน';}
+  else{el.type='password';btn.textContent='👁 ดูรหัส';}
 }
 
 async function saveUserPass(id){
