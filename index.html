@@ -367,8 +367,11 @@ input:focus,select:focus{outline:none;border-color:var(--br);background:#fff;box
     <div class="step-panel" id="step-2">
       <div class="s2-ref" id="s2-ref">📦 —</div>
       <div class="sec-sep">💰 ต้นทุนค่าของ</div>
-      <div class="fl"><label class="flbl">ราคาของ 0.5 (฿)</label><input type="number" id="sc-c05" placeholder="0" oninput="calcC()"></div>
-      <div class="fl"><label class="flbl">ราคาของ 1 (฿)</label><input type="number" id="sc-c1" placeholder="0" oninput="calcC()"></div>
+      <div class="fl"><label class="flbl">💴 ราคาหยวน (¥)</label><input type="number" id="sc-yuan" placeholder="0.00" oninput="calcC()"></div>
+      <div class="fl" style="display:flex;gap:8px">
+        <div style="flex:1"><label class="flbl">📈 เรทวันนี้ (฿/¥)</label><input type="number" id="sc-rate" placeholder="5.00" step="0.01" oninput="calcC()" value="5.00"></div>
+        <div style="flex:1"><label class="flbl">💵 เป็นเงินบาท</label><input type="number" id="sc-thb" placeholder="0" readonly style="background:#F0EBE5;color:var(--br);font-weight:700"></div>
+      </div>
       <div class="sec-sep">🚢 ค่าขนส่ง (2 ขา)</div>
       <div class="fl"><label class="flbl">🇨🇳 จีน → ไทย (AreeExpress) (฿)</label><input type="number" id="sc-ae" placeholder="0" oninput="calcC()"></div>
       <div class="fl"><label class="flbl">🚗 ไทย → บริษัท (฿)</label><input type="number" id="sc-fac" placeholder="0" oninput="calcC()"></div>
@@ -502,7 +505,7 @@ function resetForm(){
   document.getElementById('sp-status').value='ยังไม่เข้าโกดัง';document.getElementById('sp-method').value='รถ';
   document.getElementById('sp-et').style.display='none';
   document.getElementById('eta-txt').textContent='ใส่วันออกโกดังเพื่อคำนวณ ETA';
-  ['sc-c05','sc-c1','sc-ae','sc-fac'].forEach(id=>document.getElementById(id).value='');
+  ['sc-yuan','sc-rate','sc-ae','sc-fac'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=id==='sc-rate'?'5.00':'';});document.getElementById('sc-thb').value='';
   ['cc-cost','cc-ship'].forEach(id=>document.getElementById(id).textContent='฿0');
   document.getElementById('cc-qty').textContent='0';
 }
@@ -512,20 +515,25 @@ function getPData(){
 }
 
 function getCData(tracking){
-  const c05=nv(document.getElementById('sc-c05').value),c1=nv(document.getElementById('sc-c1').value);
+  const yuan=nv(document.getElementById('sc-yuan').value);
+  const rate=nv(document.getElementById('sc-rate').value)||5;
+  const cost_total=yuan*rate;
   const ae=nv(document.getElementById('sc-ae').value),fac=nv(document.getElementById('sc-fac').value);
   const qty=parseInt(document.getElementById('sp-qty').value)||0;
   const cu=document.getElementById('sp-customer').value.trim();
   const pr=document.getElementById('sp-product').value.trim();
-  const cost_total=c05+c1,ship_total=ae+fac;
-  return{tracking,customer:cu,product:pr,qty,cost05:c05,cost1:c1,cost_total,ship_ae:ae,ship_fac:fac,ship_total};
+  const ship_total=ae+fac;
+  return{tracking,customer:cu,product:pr,qty,yuan,rate,cost_total,ship_ae:ae,ship_fac:fac,ship_total};
 }
 
 function calcC(){
-  const cost=nv(document.getElementById('sc-c05').value)+nv(document.getElementById('sc-c1').value);
+  const yuan=nv(document.getElementById('sc-yuan').value);
+  const rate=nv(document.getElementById('sc-rate').value)||5;
+  const thb=yuan*rate;
+  document.getElementById('sc-thb').value=thb>0?thb.toFixed(2):'';
   const ship=nv(document.getElementById('sc-ae').value)+nv(document.getElementById('sc-fac').value);
   const qty=parseInt(document.getElementById('sp-qty').value)||0;
-  document.getElementById('cc-cost').textContent=fmt(cost);
+  document.getElementById('cc-cost').textContent=fmt(thb);
   document.getElementById('cc-ship').textContent=fmt(ship);
   document.getElementById('cc-qty').textContent=qty;
 }
@@ -636,12 +644,8 @@ function renderParcels(){
     if(hasCost){
       costHtml=`<div class="cost-summary">
         <div class="cs-box cs-qty"><div class="cs-lbl">🔢 ชิ้น</div><div class="cs-val">${hasCost.qty||p.qty||'-'}</div></div>
-        <div class="cs-box cs-cost"><div class="cs-lbl">💰 ต้นทุน</div><div class="cs-val">${fmt(hasCost.cost_total)}</div></div>
-        <div class="cs-box cs-ship"><div class="cs-lbl">🇨🇳→🇹🇭</div><div class="cs-val">${fmt(hasCost.ship_ae)}</div></div>
-      </div>
-      <div class="cost-summary" style="margin-top:6px">
-        <div class="cs-box cs-ship" style="grid-column:span 2"><div class="cs-lbl">🚗 ไทย→บริษัท</div><div class="cs-val">${fmt(hasCost.ship_fac)}</div></div>
-        <div class="cs-box cs-cost"><div class="cs-lbl">📦 รวมส่ง</div><div class="cs-val">${fmt(hasCost.ship_total)}</div></div>
+        <div class="cs-box cs-cost"><div class="cs-lbl">💴 ${hasCost.yuan?hasCost.yuan+'¥':''}${hasCost.rate?' × '+hasCost.rate:''}</div><div class="cs-val">${fmt(hasCost.cost_total)}</div></div>
+        <div class="cs-box cs-ship"><div class="cs-lbl">🚢+🚗 ค่าส่ง</div><div class="cs-val">${fmt(hasCost.ship_total)}</div></div>
       </div>`;
     }
     return`<div class="card-wrap">
@@ -689,7 +693,7 @@ function editParcel(id){
   document.getElementById('sp-dateth').value=p.date_th||'';
   document.getElementById('sp-kg').value=p.kg||'';
   document.getElementById('sp-note').value=p.note||'';
-  if(c){document.getElementById('sc-c05').value=c.cost05||'';document.getElementById('sc-c1').value=c.cost1||'';document.getElementById('sc-ae').value=c.ship_ae||'';document.getElementById('sc-fac').value=c.ship_fac||'';}
+  if(c){document.getElementById('sc-yuan').value=c.yuan||'';document.getElementById('sc-rate').value=c.rate||'5.00';document.getElementById('sc-ae').value=c.ship_ae||'';document.getElementById('sc-fac').value=c.ship_fac||'';}
   document.getElementById('sm-title').textContent='แก้ไขรายการ';document.getElementById('sm-save').textContent='✅ อัพเดท';
   upETA();goStep(1);document.getElementById('sheet-main').classList.add('on');
 }
